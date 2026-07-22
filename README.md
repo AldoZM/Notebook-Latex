@@ -3,8 +3,8 @@
 Servicio que convierte documentos capturados —fotografía, papel escaneado— en
 PDF profesional compuesto con LaTeX.
 
-> **Estado: planificación.** No hay código todavía. El diseño se está puliendo
-> en `docs/planeacion/notas-plan.txt`.
+> **Estado: diseño del motor aprobado.** No hay código todavía. Sigue el plan de
+> implementación.
 
 ## La idea
 
@@ -53,11 +53,12 @@ decidir.
 
 ## Documentación
 
-- [`docs/planeacion/notas-plan.txt`](docs/planeacion/notas-plan.txt) — decisiones
-  tomadas, riesgos marcados y lo que falta por decidir. Archivo vivo.
+- [**Diseño del motor**](docs/superpowers/specs/2026-07-21-motor-conversion-latex-design.md)
+  — la especificación. Empieza aquí.
+- [`docs/planeacion/notas-plan.txt`](docs/planeacion/notas-plan.txt) — el
+  registro de cómo se llegó a cada decisión y por qué. Archivo vivo.
 - [`docs/planeacion/antecedente-m14.txt`](docs/planeacion/antecedente-m14.txt) —
   de dónde salió la idea y qué objeción tuvo que superar.
-- `docs/superpowers/specs/` — las especificaciones, cuando el diseño se apruebe.
 
 ## Nombre
 
