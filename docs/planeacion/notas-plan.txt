@@ -136,6 +136,27 @@ D8. REVISION DIRIGIDA POR CONFIANZA. El motor anota cada elemento extraido con
     TEMPRANO, no al final; si no se logra, esta decision se cae y hay que volver
     a la revision completa.
 
+D9. SE CONSTRUYE PRIMERO EL MOTOR SOLO, POR LINEA DE COMANDOS. Sin web, sin
+    cuentas y sin cobro. Entra una imagen, sale contenido estructurado con su
+    confianza, sale el PDF compilado.
+
+    Criterio: se construye primero LO QUE PUEDE MATAR EL PROYECTO. De los cuatro
+    subsistemas, tres son ingenieria conocida (plataforma web, cobro, API con
+    llaves y cuotas): tardan, pero no sorprenden. El motor carga las dos unicas
+    incognitas reales:
+      I1. Se pueden extraer los valores de una grafica dibujada a mano con
+          precision suficiente para que valga la pena.
+      I2. La confianza que reporta el modelo es fiable, o dice "seguro" cuando
+          se equivoca.
+    Si cualquiera de las dos resulta que no, el proyecto cambia de forma. Seria
+    una lastima descubrirlo despues de haber construido el cobro.
+
+    Banco de pruebas: los tres corpus LaTeX propios de Aldo (Japones N5-N4,
+    Estructuras de Datos, Amazon en C++), que ya existen y tienen fuente y
+    resultado conocidos.
+
+    Costo aceptado: durante un buen rato no habra nada que ensenarle a nadie.
+
 
 --------------------------------------------------------------------------------
 LOS CUATRO SUBSISTEMAS (cada uno necesita su propia especificacion)
@@ -184,7 +205,7 @@ P2. RESUELTO. Ver D7.
 
 P3. RESUELTO. Ver D8.
 
-P4. Orden de construccion de los cuatro subsistemas.
+P4. RESUELTO. Ver D9.
 
 P5. Pila tecnologica. Nota: la preferencia declarada en el banco de ideas era
     Flutter mas C++ por FFI, pero esa preferencia era para una app movil. El
