@@ -1,9 +1,43 @@
 ================================================================================
 NOTAS DE PLANIFICACION - SERVICIO DE DOCUMENTOS A PDF VIA LATEX
-Sesion iniciada 2026-07-21. Sucede a continuacion-m14-latex.txt.
+Sesion iniciada 2026-07-21. Sucede a antecedente-m14.txt.
 Archivo vivo: se actualiza conforme se pule el plan. NO es la especificacion
 final; esa se escribe en docs/superpowers/specs/ cuando el diseno se apruebe.
+
+Carpeta local: D:\Codigo Abierto\C-tex
+Repositorio:   https://github.com/AldoZM/Notebook-Latex
 ================================================================================
+
+
+--------------------------------------------------------------------------------
+NOMBRE DEL PROYECTO
+--------------------------------------------------------------------------------
+
+Criterio de Aldo: el nombre tiene que entenderse globalmente, no solo en
+espanol. Referencia: "iLovePDF", que funciona porque todo el mundo sabe que es
+un PDF.
+
+Tension detectada: "PDF" es el RESULTADO y "TeX" es el METODO. Los dos publicos
+del producto leen el nombre distinto. Al estudiante de ingenieria "TeX" le da
+credibilidad; a la secretaria y al comprador de empresa no le dice nada, a ellos
+les habla "PDF", "scan", "document". Elegir nombre es elegir a quien se le habla
+primero.
+
+FINALISTAS (veredicto pendiente):
+  - Scan2PDF   habla a todos, patron "2" globalmente legible.
+               ADVERTENCIA: es tan generico que no se puede registrar como marca,
+               y compite de frente contra Adobe en el nombre mismo.
+  - SnapTeX    habla al publico STEM. Corto, se pronuncia igual en todos lados.
+
+Recomendacion de Claude: SnapTeX para el prototipo. Los primeros usuarios de
+paga seran del mundo STEM, porque son los unicos que hoy sienten el dolor de
+tipografiar a mano y los que van a recomendar el servicio. Si mas adelante el
+negocio de empresa resulta ser el grande, conviene renombrar hacia el resultado
+en vez del metodo; renombrar un prototipo cuesta poco.
+
+"C-tex" queda descartado como nombre final: se lee como el lenguaje C, con el
+que este proyecto no tiene relacion. Se conserva solo como nombre de la carpeta
+local mientras no haya veredicto.
 
 
 --------------------------------------------------------------------------------
