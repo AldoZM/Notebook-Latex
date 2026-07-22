@@ -53,12 +53,30 @@ decidir.
 
 ## Documentación
 
-- [**Diseño del motor**](docs/superpowers/specs/2026-07-21-motor-conversion-latex-design.md)
-  — la especificación. Empieza aquí.
-- [`docs/planeacion/notas-plan.txt`](docs/planeacion/notas-plan.txt) — el
-  registro de cómo se llegó a cada decisión y por qué. Archivo vivo.
-- [`docs/planeacion/antecedente-m14.txt`](docs/planeacion/antecedente-m14.txt) —
-  de dónde salió la idea y qué objeción tuvo que superar.
+Si llegas nuevo al proyecto, léelas en este orden:
+
+| # | Documento | Qué contiene |
+|---|---|---|
+| 1 | [**Diseño del motor**](docs/superpowers/specs/2026-07-21-motor-conversion-latex-design.md) | La especificación: **qué** se va a construir. Arquitectura, contrato entre etapas, seguridad y criterios de éxito |
+| 2 | [Registro de decisiones](docs/planeacion/notas-plan.md) | **Por qué** el proyecto es así. Las 22 decisiones con su razonamiento, los riesgos y lo que quedó aparcado |
+| 3 | [Antecedente](docs/planeacion/antecedente-m14.md) | De dónde salió la idea y qué objeción tuvo que superar para existir |
+
+Con leer el documento 1 tienes el contexto suficiente para hablar del proyecto.
+El 2 es para cuando quieras discutir una decisión: ahí está el argumento
+completo, incluidas las alternativas que se descartaron y por qué.
+
+## Las dos incógnitas
+
+El proyecto se construye en el orden que resuelve primero lo que puede matarlo.
+Todo lo demás depende de estas dos preguntas, que hoy no tienen respuesta:
+
+- **I1** — ¿se pueden extraer los valores de una gráfica dibujada a mano con
+  precisión suficiente para que valga la pena?
+- **I2** — ¿la confianza que reporta el sistema es fiable, o dice "seguro"
+  cuando se equivoca?
+
+Si alguna resulta que no, el proyecto cambia de forma. Por eso se construye
+primero el motor solo, por línea de comandos, sin plataforma ni cobro.
 
 ## Nombre
 
