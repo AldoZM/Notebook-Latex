@@ -112,6 +112,30 @@ D7. ALCANCE DE CONTENIDO DE LA V1: texto, ecuaciones y graficas de datos.
     central del sistema. Debe cubrir texto, ecuaciones y series de datos, y
     debe admitir tipos nuevos sin romper a los consumidores existentes.
 
+D8. REVISION DIRIGIDA POR CONFIANZA. El motor anota cada elemento extraido con
+    su nivel de confianza y solo le presenta al usuario aquello de lo que no
+    esta seguro: una ecuacion con un simbolo ambiguo, un punto de la grafica
+    encimado con la rejilla. Lo que leyo con seguridad no se pregunta.
+
+    Por que esta y no revisar todo: la interfaz de revision completa lado a lado
+    es practicamente un producto entero (renderizado en vivo, edicion de
+    ecuaciones, edicion de puntos, sincronizacion foto-resultado) y retrasaria
+    demasiado la v1.
+
+    Por que esta y no entrega directa: el argumento a favor de extraer graficas
+    como datos (D3) fue que quedan VERIFICABLES. Esa ventaja solo se cobra si
+    existe un lugar donde alguien verifique.
+
+    El dato de confianza se construye UNA VEZ y lo usan los dos productos: en el
+    plan personal alimenta la revision, y en la API se le devuelve a la empresa,
+    que del otro lado no tiene humano y necesita saber de que se puede fiar.
+
+    RIESGO PRINCIPAL DE ESTA DECISION: un modelo de vision puede equivocarse con
+    toda confianza. Si el motor declara "seguro" cuando no lo esta, el error se
+    cuela sin que nadie lo vea. La fiabilidad de la confianza hay que medirla
+    TEMPRANO, no al final; si no se logra, esta decision se cae y hay que volver
+    a la revision completa.
+
 
 --------------------------------------------------------------------------------
 LOS CUATRO SUBSISTEMAS (cada uno necesita su propia especificacion)
@@ -158,9 +182,10 @@ P1. RESUELTO. Ver D6.
 
 P2. RESUELTO. Ver D7.
 
-P3. Si hay revision humana en el ciclo. Para el plan personal probablemente si
-    (es la opcion 1 del antecedente, el ciclo de correccion); para la API no
-    puede haberla. Determina cuanto trabajo de interfaz entra en la v1 y que tan
-    alto es el liston de exactitud.
+P3. RESUELTO. Ver D8.
 
 P4. Orden de construccion de los cuatro subsistemas.
+
+P5. Pila tecnologica. Nota: la preferencia declarada en el banco de ideas era
+    Flutter mas C++ por FFI, pero esa preferencia era para una app movil. El
+    pivote a servicio la deja sin efecto y hay que decidir de nuevo.
