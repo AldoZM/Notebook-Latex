@@ -88,6 +88,17 @@ D4. DIBUJOS, ILUSTRACIONES Y FIRMAS: si se vectorizan (trazado de contornos)
 D5. LA GEOMETRIA DE LA PAGINA SI ES DE LATEX. Estructura, jerarquia, flotantes
     y tipografia los decide LaTeX. No se le exige reproducir un acomodo dado.
 
+D6. LA SALIDA ES RE-TIPOGRAFIADA EN PLANTILLA. El facsimil queda FUERA DE
+    ALCANCE, no aplazado. El PDF no se parece al papel original: se ve mejor.
+    Tres razones:
+      - Coherencia interna: si las graficas se redibujan con pgfplots (D3), esa
+        grafica no va a verse igual que la del papel. Prometer fidelidad al
+        original y redibujar las graficas son objetivos que se pelean.
+      - Mercado: el facsimil ya lo hacen gratis Adobe Scan y Microsoft Lens.
+        Ahi LaTeX no aporta ninguna ventaja.
+      - Herramienta: exigirle a LaTeX que reproduzca un acomodo dado es pelearse
+        con su premisa, que es justamente que el algoritmo decide la posicion.
+
 
 --------------------------------------------------------------------------------
 LOS CUATRO SUBSISTEMAS (cada uno necesita su propia especificacion)
@@ -130,7 +141,16 @@ A1. Precios, planes y cuotas. Se disenan cuando sepamos que cuesta caro.
 PENDIENTE AHORA MISMO
 --------------------------------------------------------------------------------
 
-P1. Re-tipografiado en plantilla profesional vs facsimil del acomodo original.
-    Recomendacion de Claude: re-tipografiado, y facsimil fuera de alcance. El
-    facsimil ya lo hacen gratis Adobe Scan y Microsoft Lens; ahi LaTeX no aporta
-    ventaja. Sin responder.
+P1. RESUELTO. Ver D6.
+
+P2. Alcance de contenido de la v1: que tipos de contenido reconoce el motor.
+    Es la pregunta que define el contrato entre las dos etapas, o sea la
+    estructura de datos que la extraccion le entrega a la composicion. Es el
+    contrato mas importante del sistema.
+
+P3. Si hay revision humana en el ciclo. Para el plan personal probablemente si
+    (es la opcion 1 del antecedente, el ciclo de correccion); para la API no
+    puede haberla. Determina cuanto trabajo de interfaz entra en la v1 y que tan
+    alto es el liston de exactitud.
+
+P4. Orden de construccion de los cuatro subsistemas.
