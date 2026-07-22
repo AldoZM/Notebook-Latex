@@ -577,6 +577,81 @@ Los otros tres subsistemas, cada uno con su propia especificación:
 2. **Cobro y membresías.**
 3. **API pública** — llaves, cuotas, trabajos asíncronos, facturación por uso.
 
+### Dónde corre, en cada fase
+
+| Fase | Dónde corre | Qué es |
+|---|---|---|
+| **Desarrollo del motor** (esta especificación) | La máquina de desarrollo | Herramienta de línea de comandos para construir y medir I1 e I2. No se despliega, no se contrata infraestructura |
+| **Desplegado** (plataforma en adelante) | **El servidor, siempre** | El usuario captura y sube. Todo el procesamiento ocurre del lado del servidor |
+
+**En ningún momento el procesamiento vive en el dispositivo del usuario.**
+
+### Extracción y compilación son dos servicios separados
+
+No dos funciones del mismo proceso: se comunican por el contrato de la sección
+5. Tres razones independientes señalan el mismo corte.
+
+| | Extracción | Compilación |
+|---|---|---|
+| **Perfil de recursos** | Ligada a entrada/salida: espera al modelo por la red, casi no usa CPU. Un núcleo lleva decenas de páginas a la vez | Ligada a CPU: un núcleo, un trabajo |
+| **Política de red** (sección 9) | **Con** salida a internet | **Sin** red, ninguna |
+
+Un contenedor no puede tener red y no tenerla. Y juntarlas obliga a dimensionar
+para lo peor de ambos perfiles.
+
+### Hospedaje: Cloud Run, con disparador de mudanza
+
+**Google Cloud Run**, con **límite de gasto y tope de instancias configurados
+desde el primer despliegue**. Es nativo de contenedores (necesario para Tectonic
+con su caché precargada), escala a cero, permite políticas de red distintas por
+servicio, y es la plataforma que el equipo ya conoce.
+
+El patrón de carga decide: 500 páginas de golpe y luego nada por horas. Un VPS
+obliga a elegir entre pagar una máquina ociosa el 95% del tiempo o hacer esperar
+42 minutos al cliente.
+
+> **Disparador de mudanza a VPS: ~120,000 páginas al mes.** Por debajo, Cloud Run
+> sale igual o más barato porque buena parte cae en la capa gratuita. Por encima,
+> el precio fijo gana, y con volumen alto y parejo gana por mucho.
+
+La decisión es barata de revertir: las dos etapas son contenedores. Mientras no
+se adopten servicios propietarios de datos o colas, mudar es trabajo de días.
+
+### El costo dominante es el modelo, no el hospedaje
+
+Supuestos, a reemplazar con medición: 1 página ≈ 10 regiones; ~800 tokens de
+entrada y ~200 de salida por llamada; consenso ×3 → 30 llamadas por página;
+~3 segundos de CPU por página.
+
+| Modelo | Modelo, por página | Cloud Run, por página |
+|---|---|---|
+| Haiku 4.5 | $0.054 | $0.0001 |
+| Sonnet 5 | $0.162 | $0.0001 |
+| Opus 4.8 | $0.270 | $0.0001 |
+
+**El modelo cuesta entre 500 y 2,700 veces más que el hospedaje.** La capa
+gratuita de Cloud Run cubre ~60,000 páginas al mes de cómputo.
+
+Consecuencias para el subsistema de cobro:
+
+- **La cuota se mide en páginas, no en documentos.** Un documento puede ser una
+  hoja o cuarenta.
+- **El plan gratuito va del orden de 10–20 páginas al mes**, no al día. Un plan
+  de 3 documentos diarios costaría entre $5 y $24 mensuales **por cada usuario
+  gratuito**.
+- **El precio del plan y la elección del modelo son la misma decisión.** 200
+  páginas al mes cuestan ~$11 con Haiku; una membresía de $15 deja margen
+  delgado con Haiku y pierde dinero con Sonnet 5.
+
+Tres palancas para bajarlo: **API de lotes** para el canal empresa (−50%,
+asíncrono hasta 24 h, encaja perfecto con digitalización masiva); **consenso
+selectivo**, ×3 solo en ecuaciones y gráficas (−40%); y **modelo por tipo de
+región**.
+
+**Retención:** la imagen normalizada se conserva junto al resultado porque el
+contrato la necesita para las coordenadas de las dudas. Hay que definir una
+ventana de retención — no se guarda para siempre.
+
 ### La velocidad para empresas es paralelismo, no lenguaje
 
 Las N páginas de un lote son N trabajos independientes que no se hablan entre
@@ -655,9 +730,11 @@ la revisión completa lado a lado, que es mucho más trabajo de interfaz. Se mid
 temprano, no al final, precisamente por esto.
 
 **R3 — El costo por documento.** El consenso de tres llamadas triplica el gasto
-en la parte más cara. Si el costo por página resulta inviable para el precio que
-el mercado aguanta, hay que reducir el consenso, y eso afecta directamente a I2.
-Los dos riesgos están acoplados y se miden juntos.
+en la parte más cara. Con los supuestos de la sección 12, una página cuesta entre
+$0.05 y $0.27 según el modelo; el consenso selectivo lo baja ~40%. Si el costo
+por página resulta inviable para el precio que el mercado aguanta, hay que
+reducir el consenso, y eso afecta directamente a I2. **R2 y R3 están acoplados y
+se miden juntos** — no se puede optimizar uno sin mover el otro.
 
 ## 15. Nombre
 

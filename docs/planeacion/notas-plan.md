@@ -38,6 +38,11 @@ tenga que volver a recorrer lo ya recorrido.
 | D20 | Nunca se cobra un trabajo que falló |
 | D21 | Las superficies: web, web móvil y app |
 | D22 | La normalización no se implementa tres veces |
+| D23 | Extracción y compilación son dos servicios separados |
+| D24 | Cloud Run como destino, con disparador de mudanza a VPS |
+| D25 | **El costo dominante es el modelo, no el hospedaje** |
+| D26 | El plan gratuito se redimensiona a páginas al mes |
+| D27 | Tres palancas de costo, la principal es la API de lotes |
 
 ---
 
@@ -410,6 +415,158 @@ reproducibilidad que exigen las mediciones de I1 e I2.
 
 ---
 
+## Infraestructura y costos
+
+> Investigado el 2026-07-21 con precios públicos vigentes. Las cifras por página
+> son **estimaciones con supuestos declarados**, no mediciones — la v1 existe en
+> buena parte para reemplazarlas por números reales.
+
+### Las dos fases de despliegue
+
+Vale la pena dejarlo sin ambigüedad, porque se presta a leerse al revés:
+
+| Fase | Dónde corre | Qué es |
+|---|---|---|
+| **Ahora — desarrollo del motor** | La máquina de Aldo | Herramienta de línea de comandos para construir y medir I1 e I2. No es un producto, no se despliega, no se contrata nada |
+| **Desplegado — plataforma en adelante** | **El servidor, siempre** | El usuario captura y sube. Todo el procesamiento ocurre del lado del servidor |
+
+**En ningún momento el procesamiento vive en el dispositivo del usuario.** Eso
+se descartó con el pivote (cayó la opción 4 del antecedente) y lo refuerza D22.
+La única máquina que corre el motor sin servidor es la de desarrollo.
+
+### D23 — Extracción y compilación son dos servicios separados
+
+No dos funciones del mismo proceso. Se comunican por el contrato de la Sección 5
+de la especificación.
+
+Tres razones independientes señalan el mismo corte, que es la señal de que el
+corte está bien puesto:
+
+| Razón | Extracción | Compilación |
+|---|---|---|
+| **Perfil de recursos** | Ligada a entrada/salida: espera al modelo por la red, casi no usa CPU. Un núcleo lleva decenas de páginas a la vez | Ligada a CPU: Tectonic trabaja de verdad. Un núcleo, un trabajo |
+| **Política de red** (D19) | **Con** salida a internet — tiene que llamar al modelo | **Sin** red, ninguna |
+| **Desacoplamiento** | Ya era la frontera del contrato | |
+
+Un contenedor no puede tener red y no tenerla. Y juntarlas obliga a dimensionar
+para lo peor de ambos perfiles: pagas CPU que la extracción no usa, o estrangulas
+la compilación limitando la concurrencia.
+
+### D24 — Cloud Run, con disparador de mudanza a VPS
+
+**Cloud Run** cuando llegue la plataforma, **con límite de gasto y tope de
+instancias configurados desde el primer despliegue**.
+
+Razones, en orden de peso:
+
+1. **Ya se conoce** — Food Match corre ahí. En un proyecto con dos incógnitas
+   técnicas abiertas, aprender una plataforma nueva es una tercera incógnita que
+   no compra nada.
+2. **El patrón de carga es a ráfagas** — 500 páginas de golpe y luego nada por
+   horas. Un VPS obliga a elegir mal: dimensionado para la ráfaga está ocioso el
+   95% del tiempo; dimensionado para el promedio, la ráfaga tarda 42 minutos.
+   Cloud Run pasa de 0 a 50 instancias y vuelve a 0.
+3. **El aislamiento lo da la plataforma** — D19 exige contenedor sin red,
+   sistema de archivos de solo lectura y matar el proceso al excederse. En Cloud
+   Run son opciones por servicio; en un VPS lo construyes tú, y si te equivocas
+   en uno no te enteras hasta que alguien lo aprovecha.
+4. **La operación es tiempo propio** — parches, disco lleno de temporales de
+   LaTeX, respaldos, caídas.
+
+**Donde el VPS gana de verdad**, y hay que decirlo: costo con volumen alto y
+constante; techo fijo de factura (un error de código no te genera una cuenta
+fea, solo se pone lento); y no depender de un proveedor.
+
+**El disparador de mudanza, con cifra:**
+
+> **~120,000 páginas al mes.** Por debajo, Cloud Run sale igual o más barato
+> porque buena parte cae en la capa gratuita. Por encima, el precio fijo empieza
+> a ganar, y con volumen alto y parejo gana por mucho (un CX22 saturado
+> equivaldría a ~$124/mes de Cloud Run contra ~$4 de renta).
+
+La decisión es barata de revertir: **las dos etapas son contenedores**, mudarlos
+a un VPS es trabajo de días, no un rediseño. Mientras no se usen las bases de
+datos y colas propietarias de Google, lo que se despliega corre igual en
+cualquier lado. Ese es el seguro.
+
+Nota de mercado registrada: Hetzner subió precios el 1 de abril de 2026 y otra
+vez el 15 de junio, hasta +176% en las líneas de vCPU dedicado. El precio fijo
+del VPS ya no es tan fijo como se suele suponer.
+
+### D25 — El costo dominante es el modelo, no el hospedaje
+
+Este es el hallazgo que reordena la sección de precios.
+
+**Precios vigentes.** Cloud Run cobra por consumo medido, no por créditos ni
+tokens: $0.000024 por vCPU-segundo, $0.0000025 por GiB-segundo, $0.40 por millón
+de peticiones — con **180,000 vCPU-s, 360,000 GiB-s y 2 millones de peticiones
+gratis al mes**. (El dominio cuesta lo mismo con Cloud Run que con VPS; no es
+factor de comparación.)
+
+**Supuestos del cálculo por página** — a reemplazar con medición:
+
+- 1 página ≈ 10 regiones (párrafos, ecuaciones, una gráfica)
+- cada llamada: ~800 tokens de entrada (recorte + instrucción), ~200 de salida
+- consenso ×3 (D14) → **30 llamadas por página** → 24,000 de entrada, 6,000 de
+  salida
+- ~3 segundos de CPU por página (normalización + compilación)
+
+| Modelo | Modelo, por página | Cloud Run, por página |
+|---|---|---|
+| Haiku 4.5 ($1/$5 por millón) | **$0.054** | $0.0001 |
+| Sonnet 5 ($3/$15) | **$0.162** | $0.0001 |
+| Opus 4.8 ($5/$25) | **$0.270** | $0.0001 |
+
+> **El modelo cuesta entre 500 y 2,700 veces más que el hospedaje.**
+
+Con la capa gratuita caben **~60,000 páginas al mes sin pagar cómputo**. La
+preocupación original era saturar el servidor; el servidor no es el problema.
+
+### D26 — El plan gratuito se redimensiona a páginas al mes
+
+La idea previa de **3 a 5 documentos diarios gratis** no es viable:
+
+| Plan gratuito propuesto | Costo mensual **por cada usuario gratuito** |
+|---|---|
+| 3 doc/día, 1 página c/u (90 págs/mes) | **$4.86** con Haiku |
+| 3 doc/día, 5 páginas c/u (450 págs/mes) | **$24.30** con Haiku |
+| Lo mismo con Sonnet 5 | **$14.60 a $73** |
+
+Mil usuarios gratuitos en el primer caso son **$4,860 al mes** de la bolsa de
+Aldo, y eso con el modelo más barato.
+
+Dos conclusiones:
+
+1. **La cuota se mide en páginas, no en documentos** — un "documento" puede ser
+   una hoja o cuarenta. Esto ya estaba aparcado como sospecha; ahora está
+   confirmado con números.
+2. **El plan gratuito tiene que ser chico** — del orden de **10 a 20 páginas al
+   mes**, no al día. Eso cuesta $0.50–$1.00 por usuario, que sí es un costo de
+   adquisición razonable.
+
+Y para la membresía: 200 páginas al mes cuestan ~$11 con Haiku. Una membresía de
+$15 deja margen delgado con Haiku y **pierde dinero con Sonnet 5**. El precio del
+plan y la elección del modelo son **la misma decisión**, no dos.
+
+### D27 — Tres palancas de costo
+
+| Palanca | Ahorro | Costo |
+|---|---|---|
+| **API de lotes** para el canal empresa | **50%** | Asíncrono, hasta 24 h |
+| **Consenso selectivo** — ×3 solo en ecuaciones y gráficas, ×1 en prosa | **~40%** | Menos confianza medida en prosa, donde un error tipográfico no es grave |
+| **Modelo por tipo de región** — barato para prosa, capaz para ecuaciones y ejes | variable | Más piezas que afinar |
+
+La primera es la más limpia y encaja exactamente con el caso de empresa: el
+cliente sube el archivero y recoge los PDF al día siguiente, **a la mitad de
+precio**. La segunda es la mitigación de R3 que D14 dejó anotada para "cuando se
+mida" — ahora se sabe cuánto vale.
+
+**Almacenamiento:** la imagen normalizada se conserva junto al resultado (lo
+exige el contrato para las coordenadas de las dudas). Es barato pero se acumula
+— hay que definir una ventana de retención, no guardarlo para siempre.
+
+---
+
 ## El nombre
 
 **Criterio de Aldo:** el nombre tiene que entenderse globalmente, no solo en
@@ -462,11 +619,11 @@ están acoplados y se miden juntos.
 
 ## Aparcado
 
-**Precios, planes y cuotas.** Se diseñan cuando sepamos qué cuesta caro.
-Adelanto: lo caro no será vectorizar, será la llamada al modelo y la
-compilación. La cuota se medirá en **páginas procesadas**, no en documentos.
-Idea suelta por registrar: 3–5 documentos al día en plan gratuito para no
-saturar el servidor.
+**Precios y planes.** Parcialmente resuelto por D25–D27: ya sabemos qué cuesta
+caro (el modelo, no el hospedaje), que la cuota se mide en **páginas** y el orden
+de magnitud del plan gratuito. Falta fijar los números finales, y eso espera a
+que la v1 mida el costo real por página. La hipótesis original de 3–5 documentos
+diarios gratis quedó **descartada** por inviable.
 
 ## Casos de uso para después de la v1
 
