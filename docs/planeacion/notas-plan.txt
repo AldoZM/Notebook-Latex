@@ -157,6 +157,64 @@ D9. SE CONSTRUYE PRIMERO EL MOTOR SOLO, POR LINEA DE COMANDOS. Sin web, sin
 
     Costo aceptado: durante un buen rato no habra nada que ensenarle a nadie.
 
+D10. PROHIBICION EXPLICITA: PYTHON NO DIBUJA GRAFICAS. matplotlib no aparece en
+     ninguna parte de la ruta de salida. Python extrae los numeros, pgfplots los
+     dibuja. Si Python dibujara la grafica, el resultado seria una imagen
+     incrustada: opaca, con otra tipografia, no editable y no verificable. Se
+     perderia todo lo ganado en D3.
+
+D11. ESTRATEGIA DE LENGUAJES. Python orquesta y le pide el trabajo pesado a
+     codigo ya compilado: OpenCV (C++) para vision, potrace (C) para vectorizar
+     contornos, Tectonic (Rust) para compilar. C++ PROPIO entra en UN SOLO
+     LUGAR identificado y solo cuando la medicion lo justifique:
+
+       EL RASTREADOR DE CURVAS, dentro del extractor de graficas.
+       Interfaz: recibe una imagen binarizada y un punto de inicio,
+                 devuelve una secuencia de coordenadas.
+       Se escribe primero en Python para validar el algoritmo y se reemplaza
+       por C++ con pybind11 sin tocar ninguna otra parte del sistema.
+
+     Por que ahi y no en otro lado: rastrear una curva es secuencial y
+     dependiente del paso anterior (en cada pixel se decide a que vecino saltar
+     segun de donde se venia). No se puede expresar como operacion sobre el
+     arreglo completo, que es lo unico que salva a Python. Todo lo demas si se
+     puede.
+
+     La regla general que sostiene esto: EN PYTHON NUNCA SE RECORRE PIXEL POR
+     PIXEL. La operacion se expresa sobre el arreglo completo y el recorrido
+     ocurre dentro de C++. Un bucle por pixel en Python sobre una imagen de
+     4000x3000 tarda 15-30 segundos; la misma operacion vectorizada tarda
+     20-40 ms, igual que C++, porque ES el mismo binario.
+
+     Correccion registrada: la primera propuesta fue repartir el sistema por
+     lenguaje (C++ procesa imagen, Python procesa firmas). Se descarto porque
+     vectorizar una firma es rastreo de contornos, o sea justo el caso que
+     Python hace peor: la asignacion estaba invertida. Repartir por lenguaje
+     desde el inicio cuesta dos cadenas de compilacion, depuracion a traves de
+     la frontera y despliegue mas fragil, en TODO el sistema, para ganar 1%
+     donde no esta el problema. Se reparte por responsabilidad, y la frontera de
+     lenguajes se pone en un punto elegido por medicion.
+
+D12. LA VELOCIDAD PARA EMPRESAS ES PARALELISMO, NO LENGUAJE. Las N paginas de un
+     lote son N trabajos independientes que no se hablan entre si: se reparten
+     en trabajadores y se procesan a la vez. Escalar horizontalmente da ~100x;
+     reescribir el pegamento en C++ da ~1% (50 ms de 5 s).
+     Ademas, de esos 5 segundos por pagina la mayoria se va ESPERANDO: la
+     respuesta del modelo por la red y la compilacion de Tectonic. C++ no
+     acelera ninguna de las dos. Un proceso que espera por la red no espera mas
+     rapido por estar escrito en C++.
+     La calidad tampoco sale del lenguaje: sale del mecanismo de confianza (D8)
+     y del ciclo de compilacion con reparacion.
+
+
+--------------------------------------------------------------------------------
+CASOS DE USO REGISTRADOS PARA DESPUES DE LA V1
+--------------------------------------------------------------------------------
+
+U1. Apuntes medicos: ilustraciones que hay que dibujar a mano (corazon, huesos).
+    Aportado por Aldo. Publico distinto al de STEM y al de oficina, y justifica
+    la etapa de vectorizacion de ilustraciones. Fuera de la v1 por D7.
+
 
 --------------------------------------------------------------------------------
 LOS CUATRO SUBSISTEMAS (cada uno necesita su propia especificacion)
