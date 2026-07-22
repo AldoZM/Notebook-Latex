@@ -285,6 +285,77 @@ SECCION 2 - CONTRATO ENTRE ETAPAS. Aprobada.
   esperado), y la API B2B ya queda disenada.
 
 
+SECCION 3 - EXTRACCION DE GRAFICAS. Aprobada.
+
+  EL REPARTO: EL MODELO LEE, LA VISION CLASICA MIDE.
+    Modelo de vision  bueno en significado (que tipo de grafica es, que dice
+                      esta etiqueta, cuantas series hay, cual es el titulo)
+                      malo en coordenadas precisas: si se le pide "en que pixel
+                      esta ese punto", inventa.
+    Vision clasica    buena en precision al pixel, ciega al significado.
+    Regla: el modelo NUNCA da coordenadas; la vision clasica NUNCA interpreta.
+
+  LOS SIETE PASOS:
+    1. Detectar el marco     las dos rectas largas de los ejes. Hough, OpenCV
+    2. Leer las etiquetas    "0", "5", "10" junto a las marcas. MODELO
+    3. Fijar la escala       dos marcas de valor conocido por eje dan la
+                             transformacion pixel -> valor
+    4. Aislar la curva       quitar rejilla, ejes y texto. OpenCV
+    5. Rastrear              recorrer el trazo pixel por pixel
+                             <- EL RASTREADOR, el punto de C++ de D11
+    6. Convertir             aplicar la transformacion del paso 3
+    7. Remuestrear           reducir a 20-50 puntos. Nadie quiere 800 puntos
+                             en un pgfplots
+
+  D13. LA ESCALA SE CONFIRMA SIEMPRE EN LA V1. Excepcion deliberada a D8.
+       Una pregunta fija por grafica ("eje X de 0 a 10, eje Y de -1 a 1,
+       correcto?") con el recorte al lado, aunque el motor este seguro.
+       En la API, donde no hay quien conteste, la escala se devuelve con su
+       confianza marcada aparte para que la empresa la valide.
+
+       POR QUE: los pasos 2 y 3 son donde un error es CATASTROFICO. Un error de
+       rastreo es local (un punto mal de veinte, se nota y se corrige). Un error
+       de escala es MULTIPLICATIVO: todos los puntos quedan mal, la curva
+       conserva su forma y la grafica se ve perfectamente plausible. No hay nada
+       en el PDF que delate el error.
+
+       POR QUE ESTA Y NO REGIRSE POR CONFIANZA: decidir hoy en cualquiera de las
+       dos direcciones es apostar sobre I2, que no se ha medido. Cuando hay que
+       decidir sin datos se elige el camino cuyo error sea mas barato de
+       deshacer. Confirmar de mas y que sobre = borrar una pregunta, un dia de
+       trabajo. No confirmar y que la confianza mienta = meses entregando
+       documentos que se ven correctos y estan mal, y el que se entera es el
+       cliente. No es asimetria de probabilidad, es asimetria de consecuencia.
+
+       VENTAJA ADICIONAL: cada confirmacion ES UN DATO DE MEDICION para I2. Se
+       acumulan pares de "el modelo dijo esto con esta confianza" contra "la
+       verdad era esta". La confirmacion no es solo defensa, es el instrumento
+       de medicion. Con unos cientos de graficas confirmadas se sabra CON
+       NUMEROS si se puede relajar, en vez de opinar.
+       Es reversible: se relaja despues si los datos lo justifican.
+
+  COMO SE MIDE I1. Tres niveles, con verdad conocida:
+    Nivel 0  graficas de pgfplots de los corpus propios de Aldo, impresas y
+             fotografiadas. Los datos exactos ya estan en el codigo fuente.
+             Aisla EL CANAL DE CAPTURA solo. Es el nivel mas subestimado y el
+             mas valioso: separa "el sistema no sabe leer graficas" de "el
+             sistema no sabe leer TU LETRA". Son dos problemas distintos y se
+             arreglan con cosas distintas.
+    Nivel 1  graficas dibujadas a mano copiando datos elegidos por Aldo.
+             Aisla el trazo a mano, con verdad exacta conocida.
+    Nivel 2  graficas reales de los cuadernos. El caso real, a juicio.
+
+  CRITERIOS DE EXITO DE I1, medidos en el nivel 1:
+    - error mediano por punto menor al 2% del rango del eje
+    - ningun punto con error mayor al 5%
+    - escala leida correctamente en mas del 95% de las graficas
+  Si el nivel 1 no llega a eso, la extraccion de graficas no es viable con este
+  enfoque y hay que replantear, ANTES de haber construido nada mas.
+  Nota: el 2% es exigente pero alcanzable con ejes limpios, y es donde el ojo
+  deja de notar la diferencia. Si resulta muy duro, se arranca en 3% y se
+  aprieta despues.
+
+
 --------------------------------------------------------------------------------
 CASOS DE USO REGISTRADOS PARA DESPUES DE LA V1
 --------------------------------------------------------------------------------
