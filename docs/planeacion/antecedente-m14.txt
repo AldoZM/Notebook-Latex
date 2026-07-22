@@ -1,0 +1,112 @@
+================================================================================
+CONTINUACION PENDIENTE - M14: CAPTURADOR DE APUNTES MANUSCRITOS A LATEX
+Escrito el 2026-07-21 al cerrar la sesion. Aldo pidio dejarlo para el dia
+siguiente.
+================================================================================
+
+Este archivo existe para que la proxima sesion NO empiece de cero ni vuelva a
+recorrer lo ya recorrido. Se cae la sesion, se pierde el hilo, y se termina
+repitiendo la misma conversacion: eso ya paso una vez con estas dos ideas.
+
+
+--------------------------------------------------------------------------------
+DONDE QUEDO TODO
+--------------------------------------------------------------------------------
+
+M8 (malla Bluetooth):  DESARROLLADA. Ver PARTE 7 de ideas-tintero.txt y la
+                       especificacion escrita en
+                       docs/superpowers/specs/2026-07-21-malla-bluetooth-cuadrilla-design.md
+                       Falta: el visto bueno de Aldo a esa especificacion y
+                       despues el plan de implementacion.
+
+M14 (apuntes a LaTeX): DETENIDA en la primera pregunta. Nada decidido todavia.
+
+
+--------------------------------------------------------------------------------
+LA OBJECION QUE HAY QUE RESOLVER ANTES DE DISENAR NADA
+--------------------------------------------------------------------------------
+
+"Foto del cuaderno y sale LaTeX compilable" ya lo hace un modelo de vision hoy.
+
+Si el proyecto es eso y nada mas, es una envoltura: el modelo esta dentro del
+ciclo, mejora solo sin que Aldo haga nada, y no queda aporte propio que no se
+pueda reemplazar con una llamada a una API. Es exactamente lo que descarta el
+filtro 1 (sustitucion por IA) de la PARTE 0.
+
+M14 si pasa el filtro 3 (validacion) sin discusion: Aldo es su propio usuario,
+tiene cuadernos reales que fotografiar y tres corpus LaTeX propios ya escritos
+(Japones N5-N4, Estructuras de Datos, Amazon en C++).
+
+Entonces la pregunta no es "sirve la idea". Es: QUE CONSTRUYE ALDO, Y QUE DEJA
+QUE HAGA EL MODELO.
+
+
+--------------------------------------------------------------------------------
+LAS CUATRO RESPUESTAS QUE SE LE PLANTEARON (queda elegir)
+--------------------------------------------------------------------------------
+
+Contexto que sostiene las cuatro: cuando un modelo devuelve LaTeX de una foto
+pasan tres cosas que el modelo NO resuelve. Sale con macros genericas que no son
+las de Aldo. No siempre compila. Y verificar que transcribio bien la ecuacion
+toma casi tanto tiempo como haberla escrito a mano.
+
+1. EL CICLO DE CORRECCION
+   El modelo transcribe, pero el trabajo propio es la interfaz que vuelve
+   trivial verificar y corregir: foto y LaTeX renderizado lado a lado, tocar un
+   simbolo dudoso y arreglarlo al instante. El valor esta en que revisar 40
+   ecuaciones tome dos minutos y no veinte. Ingenieria de interfaz, no de modelo.
+
+2. EL COMPILADOR EN EL CICLO
+   Lo que sale del modelo se compila de verdad en el dispositivo. Si no compila,
+   se repara automaticamente y se reintenta hasta que si. Determinista y
+   verificable. Sobrevive el filtro 1 porque quien esta en el ciclo de ejecucion
+   es el compilador, no el modelo.
+
+3. LAS CONVENCIONES PROPIAS
+   El sistema conoce el preambulo y las macros de cada uno de los tres corpus, y
+   emite LaTeX que encaja en ESE documento, en el capitulo correcto, listo para
+   confirmar en git. Un modelo generico no sabe que macros usa Aldo.
+
+4. SIN INTERNET, EN EL DISPOSITIVO
+   Reconocimiento corriendo local, sin llamadas a ninguna API. Encaja con la
+   preferencia declarada de Flutter mas C++ por FFI y sobrevive el filtro 1 sin
+   discusion. Contra: la calidad del reconocimiento de matematicas manuscritas
+   en el dispositivo hoy es notablemente peor.
+
+Las opciones no son excluyentes. 1, 2 y 3 se combinan bien y describen un mismo
+producto: un canalizador que toma la foto, deja que el modelo transcriba, obliga
+al resultado a compilar contra el preambulo real de Aldo, y presenta la
+correccion de forma que revisar sea rapido. La 4 es la que cambia el proyecto de
+raiz y la que mas riesgo tecnico carga.
+
+
+--------------------------------------------------------------------------------
+COMO RETOMAR
+--------------------------------------------------------------------------------
+
+Empezar preguntando cual de las cuatro, o que combinacion. No volver a explicar
+la objecion: ya esta arriba, y la leccion de la PARTE 0 punto 4 es que las
+explicaciones largas antes de la decision matan las ideas.
+
+Preguntas que vienen despues, solo cuando la de arriba este contestada:
+  - Cuanto de la captura es matematica y cuanto es texto o japones. Cambia todo:
+    reconocer kanji manuscrito y reconocer una integral no se parecen en nada.
+  - Si el destino es un archivo .tex nuevo o una insercion dentro de un documento
+    existente. La insercion es mucho mas util y mucho mas dificil.
+  - Si el telefono es el lugar correcto, o si el telefono solo captura y el
+    trabajo pesado ocurre en la computadora donde ya viven los tres corpus.
+
+
+--------------------------------------------------------------------------------
+IDEAS RELACIONADAS QUE YA ESTAN EN EL BANCO
+--------------------------------------------------------------------------------
+
+Vale la pena mirarlas antes de disenar M14, porque comparten corpus y podrian ser
+el mismo proyecto:
+
+  Idea 20: buscador semantico de apuntes propios. Indexa los PDF de LaTeX con
+           incrustaciones locales y responde citando pagina, usando Ollama.
+  Idea 36: convertir los apuntes en un sitio interactivo.
+  Idea 21: registro de practica de escritura de kanji, con comparacion de trazos.
+  Idea 4:  aplicacion de repaso de japones con repeticion espaciada, que ya
+           aprovecha los apuntes N5-N4.

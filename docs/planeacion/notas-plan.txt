@@ -1,0 +1,102 @@
+================================================================================
+NOTAS DE PLANIFICACION - SERVICIO DE DOCUMENTOS A PDF VIA LATEX
+Sesion iniciada 2026-07-21. Sucede a continuacion-m14-latex.txt.
+Archivo vivo: se actualiza conforme se pule el plan. NO es la especificacion
+final; esa se escribe en docs/superpowers/specs/ cuando el diseno se apruebe.
+================================================================================
+
+
+--------------------------------------------------------------------------------
+EL PIVOTE
+--------------------------------------------------------------------------------
+
+M14 dejo de ser una app personal y ahora es un SERVICIO DE PAGA.
+
+Consecuencia inmediata: de las cuatro respuestas que quedaron abiertas ayer, la
+opcion 4 (reconocimiento local en el dispositivo, sin internet) queda DESCARTADA
+por el pivote mismo. Un servicio de paga no corre el modelo en la maquina del
+cliente. Las opciones 1, 2 y 3 (ciclo de correccion, compilador en el ciclo,
+convenciones propias) siguen vivas y describen el mismo producto.
+
+
+--------------------------------------------------------------------------------
+DECIDIDO
+--------------------------------------------------------------------------------
+
+D1. DOS PRODUCTOS, UN SOLO MOTOR.
+    - Personal: estudiantes, secretarias, trabajadores. Con limite preestablecido.
+    - API: empresas grandes que capturan datos de forma masiva.
+    Lo que los separa NO es que reconozcan cosas distintas; es la cuota, la
+    integracion y el precio. El motor de conversion es el mismo.
+
+D2. SEPARACION DE ETAPAS. Extraccion y composicion son etapas distintas y se
+    prueban por separado.
+    - A la etapa de extraccion se le mete una imagen y se verifica su salida.
+    - A la etapa de composicion se le mete contenido estructurado y se verifica
+      que compile.
+
+D3. LAS GRAFICAS SALEN COMO DATOS, NO COMO DIBUJO.  <-- decision clave
+    El algoritmo que escanea la grafica NO produce trazos. Produce VALORES:
+    rango de ejes, escala, puntos de cada serie, etiquetas. pgfplots dibuja.
+    Por que importa:
+      - Editable: el usuario corrige un dato mal leido, no un trazo.
+      - Consistente: misma tipografia, colores y rejilla que el resto del
+        documento y que las demas graficas.
+      - Verificable: se puede contrastar el dato extraido contra la imagen.
+        Con un vector opaco eso no se puede.
+    Esta es la respuesta al FILTRO 1 (sustitucion por IA) que quedo abierta
+    ayer. Aqui LaTeX no es intercambiable por una llamada a un modelo.
+
+D4. DIBUJOS, ILUSTRACIONES Y FIRMAS: si se vectorizan (trazado de contornos)
+    y se incrustan como figura. Estos no son datos, son geometria. Es el unico
+    caso donde la salida de la extraccion es un vector.
+
+D5. LA GEOMETRIA DE LA PAGINA SI ES DE LATEX. Estructura, jerarquia, flotantes
+    y tipografia los decide LaTeX. No se le exige reproducir un acomodo dado.
+
+
+--------------------------------------------------------------------------------
+LOS CUATRO SUBSISTEMAS (cada uno necesita su propia especificacion)
+--------------------------------------------------------------------------------
+
+S1. Motor de conversion: imagen -> contenido estructurado -> LaTeX -> PDF.
+    Incluye extraccion de datos de graficas y vectorizacion de dibujos.
+S2. Plataforma web: subir, revisar y corregir, descargar.
+S3. Cobro y membresias.
+S4. API publica B2B: llaves, cuotas, trabajos asincronos, facturacion por uso.
+
+Orden de construccion: pendiente de decidir. S1 es la dependencia de los otros
+tres.
+
+
+--------------------------------------------------------------------------------
+RIESGOS Y RESTRICCIONES MARCADAS
+--------------------------------------------------------------------------------
+
+R1. FIRMAS. Si el servicio recorta una firma y la reincrusta en un documento
+    REGENERADO, el resultado se ve oficial pero ya no prueba nada. Es una via de
+    falsificacion y un riesgo legal para el proveedor. Opciones a evaluar en el
+    diseno: no vectorizar la firma y conservarla como imagen de la pagina
+    escaneada, o marcar todo documento regenerado con metadatos que declaren que
+    lo es. Se decide en la seccion de alcance, no despues.
+
+
+--------------------------------------------------------------------------------
+APARCADO (no se decide todavia)
+--------------------------------------------------------------------------------
+
+A1. Precios, planes y cuotas. Se disenan cuando sepamos que cuesta caro.
+    Adelanto: lo caro no sera vectorizar, sera la llamada al modelo y la
+    compilacion. La cuota se medira en PAGINAS PROCESADAS, no en documentos.
+    Idea suelta de Aldo por registrar: 3-5 documentos al dia en plan gratuito
+    para no saturar el servidor.
+
+
+--------------------------------------------------------------------------------
+PENDIENTE AHORA MISMO
+--------------------------------------------------------------------------------
+
+P1. Re-tipografiado en plantilla profesional vs facsimil del acomodo original.
+    Recomendacion de Claude: re-tipografiado, y facsimil fuera de alcance. El
+    facsimil ya lo hacen gratis Adobe Scan y Microsoft Lens; ahi LaTeX no aporta
+    ventaja. Sin responder.
