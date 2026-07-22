@@ -356,6 +356,64 @@ SECCION 3 - EXTRACCION DE GRAFICAS. Aprobada.
   aprieta despues.
 
 
+SECCION 4 - LA CONFIANZA Y SU VALIDACION. Aprobada.
+
+  NO SE LE PREGUNTA AL MODELO QUE TAN SEGURO ESTA. Los modelos estan mal
+  calibrados y su "95% seguro" no corresponde con acertar 95 de cada 100. Suelen
+  ser optimistas justo donde uno necesita que no lo sean.
+  La confianza NO se pregunta: SE CONSTRUYE MIDIENDO ALGO OBSERVABLE.
+
+  D14. CONFIANZA POR CONSENSO, para texto y ecuaciones.
+       Se le pide al modelo la misma region TRES veces con temperatura distinta
+       de cero y se comparan las respuestas. Tres coincidencias identicas =
+       confianza alta. Discrepancia = ahi esta la duda, y el desacuerdo dice
+       EXACTAMENTE DONDE y CUALES SON LAS ALTERNATIVAS.
+       Esto llena solo el campo "alternativas" del contrato de la Seccion 2: las
+       probabilidades salen de contar votos, no hay que inventarlas.
+       No es auto-reporte, es evidencia: mide la INESTABILIDAD REAL del modelo
+       ante esa imagen. Un modelo puede estar seguro y equivocado, pero es mucho
+       mas dificil que se equivoque DE LA MISMA MANERA TRES VECES partiendo de
+       muestreos distintos.
+       COSTO ACEPTADO: tres llamadas en vez de una, el triple de gasto en la
+       parte mas cara del sistema. Mitigaciones a evaluar CUANDO SE MIDA, no
+       antes: dos llamadas y una tercera solo para desempatar, o consenso solo
+       en ecuaciones y graficas y una sola llamada para prosa, donde un error
+       tipografico no es grave.
+
+  D15. CONFIANZA GEOMETRICA, para graficas. No hace falta consenso porque hay
+       senales medibles directamente por el propio algoritmo:
+         - continuidad del trazo rastreado (huecos que hubo que saltar)
+         - grosor y estabilidad de la linea (trazo tembloroso = mas
+           incertidumbre por punto)
+         - cruces con la rejilla o con otra serie (ahi estan los puntos
+           ambiguos)
+         - ajuste de las marcas del eje (si estan equiespaciadas como deberian)
+         - residuo del remuestreo (cuanto se perdio al reducir a 30 puntos)
+       Son numeros que salen del algoritmo, no opiniones de un modelo.
+
+  CALIBRACION: una confianza sirve solo si SIGNIFICA algo. De todos los
+  elementos marcados con confianza 0.90, aproximadamente el 90% deben estar
+  correctos. Se mide con un diagrama de fiabilidad: se agrupan los elementos por
+  confianza reportada y se compara contra la exactitud real de cada grupo. Los
+  puntos por debajo de la diagonal son el motor creyendose mas de lo que
+  acierta, y eso es lo peligroso.
+
+  CRITERIOS DE EXITO DE I2:
+    1. EL GRUPO DE CONFIANZA ALTA TIENE QUE SER CONFIABLE. De los elementos con
+       confianza mayor a 0.90, al menos el 97% correctos. Es el criterio que de
+       verdad importa: garantiza que lo que NO se pregunta, esta bien.
+    2. Calibracion global razonable: error de calibracion esperado < 0.10.
+    3. QUE LAS DUDAS ATRAPEN LOS ERRORES: de todos los elementos que salieron
+       mal, al menos el 90% debian haber estado marcados como duda. Un error que
+       no genero duda es un ERROR SILENCIOSO, y son los unicos inaceptables.
+    Los criterios 1 y 3 son dos caras de lo mismo y son el corazon del asunto.
+    Si se cumplen, D8 se sostiene y el producto funciona. Si no, hay que volver
+    a revision completa lado a lado y la v1 se encarece bastante.
+
+  Material de medicion: el mismo de la Seccion 3, mas las ecuaciones y el texto
+  de los corpus propios, donde la verdad exacta esta en el fuente .tex.
+
+
 --------------------------------------------------------------------------------
 CASOS DE USO REGISTRADOS PARA DESPUES DE LA V1
 --------------------------------------------------------------------------------
