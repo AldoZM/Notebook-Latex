@@ -99,6 +99,19 @@ D6. LA SALIDA ES RE-TIPOGRAFIADA EN PLANTILLA. El facsimil queda FUERA DE
       - Herramienta: exigirle a LaTeX que reproduzca un acomodo dado es pelearse
         con su premisa, que es justamente que el algoritmo decide la posicion.
 
+D7. ALCANCE DE CONTENIDO DE LA V1: texto, ecuaciones y graficas de datos.
+    FUERA de la v1: tablas, dibujos, ilustraciones y firmas. Se agregan despues
+    sin rediseno, porque el contrato entre etapas se disena extensible.
+    El criterio de este corte NO fue la facilidad, fue lo contrario: se incluye
+    la parte mas dificil (graficas) porque es la unica que no puede replicar una
+    llamada a un modelo. Una v1 sin graficas seria un envoltorio de OCR y morira
+    por el filtro 1. Las tablas son valiosas pero son mercancia comun: las
+    extrae bien cualquier producto existente, y aplazarlas no cuesta nada.
+
+    Consecuencia directa: el contrato entre extraccion y composicion es LA pieza
+    central del sistema. Debe cubrir texto, ecuaciones y series de datos, y
+    debe admitir tipos nuevos sin romper a los consumidores existentes.
+
 
 --------------------------------------------------------------------------------
 LOS CUATRO SUBSISTEMAS (cada uno necesita su propia especificacion)
@@ -143,10 +156,7 @@ PENDIENTE AHORA MISMO
 
 P1. RESUELTO. Ver D6.
 
-P2. Alcance de contenido de la v1: que tipos de contenido reconoce el motor.
-    Es la pregunta que define el contrato entre las dos etapas, o sea la
-    estructura de datos que la extraccion le entrega a la composicion. Es el
-    contrato mas importante del sistema.
+P2. RESUELTO. Ver D7.
 
 P3. Si hay revision humana en el ciclo. Para el plan personal probablemente si
     (es la opcion 1 del antecedente, el ciclo de correccion); para la API no
