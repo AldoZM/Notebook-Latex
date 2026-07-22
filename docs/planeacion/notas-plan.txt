@@ -480,6 +480,111 @@ SECCION 5 - COMPOSICION, COMPILACION Y SEGURIDAD. Aprobada.
        El contrato no solo desacopla las etapas: ES LA FRONTERA DE SEGURIDAD.
 
 
+SECCION 6 - MANEJO DE ERRORES. Aprobada.
+
+  PRINCIPIO: cada etapa cuesta mas que la anterior, asi que EL ERROR SE DETECTA
+  LO MAS TEMPRANO POSIBLE. Rechazar una foto mala antes de llamar al modelo
+  cuesta milisegundos; descubrirlo tras tres llamadas y una compilacion cuesta
+  dinero y le entrega basura al usuario.
+
+    Foto inutilizable (movida, oscura, cortada)
+      -> etapa 1, antes de gastar nada. Se rechaza con mensaje CONCRETO ("la
+         foto esta movida", "falta un borde de la hoja"), no "error al
+         procesar". Varianza del laplaciano para desenfoque, histograma para
+         exposicion. Ambas baratisimas.
+    El modelo falla (tiempo agotado, limite de tasa, caida de la API)
+      -> etapa 3. Reintento con retroceso exponencial. Si persiste, el trabajo
+         queda REINTENTABLE, no perdido. Y no se cobra.
+    Segmentacion equivocada (una grafica clasificada como parrafo)
+      -> se genera duda de tipo region_dudosa.
+    No compila -> ciclo de reparacion y degradacion (D17, D18).
+    Pagina sin nada reconocible -> no es error: documento vacio con aviso.
+
+  D20. NUNCA SE LE COBRA AL USUARIO UN TRABAJO QUE FALLO. Decidido desde ahora
+       para cuando exista el cobro.
+
+SECCION 7 - PRUEBAS Y CRITERIOS DE EXITO. Aprobada.
+
+  Las pruebas se dividen POR VELOCIDAD, porque de eso depende que se usen.
+
+  RAPIDAS, en cada cambio (no tocan imagenes ni el modelo):
+    - JSON escrito a mano -> composicion -> compila. Cubre las etapas 6 y 7 sin
+      costo.
+    - El bloque de tipo desconocido: se mete {"tipo":"inventado"} y la
+      composicion debe saltarlo con advertencia, no reventar. Regla 1 del
+      contrato, probada desde el dia uno.
+    - Corpus de .tex maliciosos que deben quedar bloqueados: \write18, \input de
+      rutas absolutas, bombas de expansion. Cada defensa de D19 con su prueba.
+
+  LENTAS, bajo demanda (cuestan dinero porque llaman al modelo):
+    - Los niveles 0, 1 y 2 de la Seccion 3.
+    - Las metricas de I1 e I2 como SUITE EJECUTABLE, no medicion manual. Un
+      comando y salen los numeros y el diagrama de fiabilidad. Si medir es
+      trabajoso, no se mide.
+
+  CRITERIO DE EXITO DE LA V1. Tres cosas, y la tercera es la que decide:
+    1. I1 cumple: error mediano por punto bajo 2%, escala correcta en mas del
+       95%.
+    2. I2 cumple: de los elementos con confianza sobre 0.90, al menos 97%
+       correctos; y al menos el 90% de los errores generaron duda.
+    3. LA PROMESA DEL PRODUCTO, MEDIDA CON CRONOMETRO:
+       Diez paginas reales de los cuadernos de Aldo. Se procesan. Se contestan
+       las dudas. Se compara ese tiempo total contra lo que habria tomado
+       tipografiar esas diez paginas a mano.
+       SI NO ES SUSTANCIALMENTE MENOR, EL PRODUCTO NO SIRVE, aunque I1 e I2
+       hayan pasado.
+       Es el criterio importante porque es el unico que mide LO QUE EL USUARIO
+       COMPRA. Un motor con excelentes metricas que deja al usuario contestando
+       cuarenta dudas por pagina es un motor que nadie va a pagar. Y es medible
+       hoy, con Aldo, sin un solo usuario externo.
+
+SECCION 8 - FUERA DE ALCANCE DE LA V1. Aprobada.
+
+  Explicitamente fuera, para que nadie lo de por supuesto:
+    - Tablas, ilustraciones, firmas. D7. El contrato ya admite agregarlas.
+    - Facsimil del acomodo original. D6. Fuera PERMANENTEMENTE, no aplazado.
+    - Plataforma web, cuentas, cobro, API. D9. Se construyen sobre el motor.
+    - Mas de una plantilla. D16.
+    - Perfiles de documento con macros propias. Es de la plataforma.
+    - JAPONES Y ESCRITURAS NO LATINAS. Reconocer kanji manuscrito es un problema
+      DISTINTO, no una variante. Si entra, entra como proyecto aparte.
+    - Documentos de varias paginas con referencias cruzadas. La v1 procesa
+      paginas independientes; coser paginas es un problema propio.
+
+  D21. LAS SUPERFICIES: WEB, WEB MOVIL Y APP. Las tres estan planeadas y se
+       construyen DESPUES del motor. La captura es con la camara del celular
+       tanto desde la web como desde la app.
+
+       ACLARACION TECNICA REGISTRADA: la camara desde la web YA FUNCIONA sin app
+       nativa. <input type="file" capture="environment"> abre la camara y
+       getUserMedia da el video en vivo. Es capacidad estandar, no un remedio.
+       Por tanto "poder usar la camara" NO es razon para hacer la app. Las
+       razones reales, que la web no da bien, son:
+         - deteccion de bordes en vivo con el marco sobre la hoja al encuadrar
+         - capturar sin senal y encolar para subir despues
+         - subida en segundo plano con la aplicacion cerrada
+         - capturar veinte paginas seguidas sin friccion
+         - presencia en la tienda de aplicaciones, que da confianza
+       Se anota para no construir la app antes de tiempo por un motivo
+       equivocado.
+
+  D22. LA NORMALIZACION NO SE IMPLEMENTA TRES VECES.  <-- trampa clasica
+       Con tres superficies, si cada una endereza y recorta por su cuenta, hay
+       tres versiones que se comportan distinto y el mismo cuaderno da
+       resultados diferentes segun desde donde se subio. Imposible de depurar y
+       arruina la reproducibilidad que exigen las mediciones de I1 e I2.
+         - EL SERVIDOR NORMALIZA SIEMPRE y su resultado es el unico valido. Es
+           la etapa 1 del motor y vive en un solo lugar.
+         - El cliente puede AYUDAR A ENCUADRAR: marco guia, aviso de "esta
+           movida" antes de subir. Eso es experiencia de usuario y puede diferir
+           entre superficies sin consecuencias.
+         - EL CLIENTE SUBE LA FOTO LO MAS CRUDA POSIBLE. Nada de recortar o
+           filtrar antes de subir: si el cliente ya la proceso, el servidor
+           recibe informacion degradada y no puede recuperarla.
+       Asi las tres superficies son intercambiables para el motor, que es lo que
+       D9 exige al decir que el motor es una funcion pura de una pagina.
+
+
 --------------------------------------------------------------------------------
 CASOS DE USO REGISTRADOS PARA DESPUES DE LA V1
 --------------------------------------------------------------------------------
