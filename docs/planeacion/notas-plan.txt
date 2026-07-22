@@ -208,6 +208,84 @@ D12. LA VELOCIDAD PARA EMPRESAS ES PARALELISMO, NO LENGUAJE. Las N paginas de un
 
 
 --------------------------------------------------------------------------------
+DISENO APROBADO (se pasara a la especificacion formal al terminar)
+--------------------------------------------------------------------------------
+
+SECCION 1 - ARQUITECTURA. Aprobada.
+
+  Siete etapas, cada una con entrada y salida claras y probable por separado:
+    1. Normalizacion      enderezar, recortar, corregir iluminacion   OpenCV
+    2. Segmentacion       partir en regiones y clasificarlas          OpenCV
+    3. Extraccion         tres extractores, uno por tipo, CON confianza
+    4. Ensamblado         se arma el documento estructurado  <- EL CONTRATO
+    5. Compuerta de dudas se separa lo seguro de lo dudoso
+    6. Composicion        documento estructurado -> codigo LaTeX
+    7. Compilacion        se compila de verdad; si falla, se repara y reintenta
+
+  Las etapas 1 y 2 NO llevan modelo: son vision por computadora clasica.
+  La etapa 7 no es detalle de implementacion: quien valida el resultado final es
+  el compilador (determinista), no el modelo. Era la opcion 2 del antecedente.
+
+  Pila: Python orquesta / OpenCV (C++) vision / potrace (C) contornos /
+        Tectonic (Rust) compilacion. Salida: PDF y tambien el .tex, que es del
+        usuario.
+  Nota: la preferencia previa de Flutter + C++ por FFI era para app movil y
+  queda sin efecto con el pivote. Si algun dia hay app, sera solo para capturar.
+
+  EL MOTOR ES UNA FUNCION PURA DE UNA PAGINA: entra una imagen, sale un
+  resultado, sin estado entre llamadas. Es lo que permite el paralelismo de D12.
+  Por eso la v1 por linea de comandos (D9) no es un atajo, es la forma correcta.
+
+SECCION 2 - CONTRATO ENTRE ETAPAS. Aprobada.
+
+  Formato JSON con esquema formal que ambas etapas validan. Sirve para TRES
+  cosas a la vez y por eso se disena una sola vez: componer el LaTeX, alimentar
+  la revision de dudas, y ser lo que la API le devuelve a la empresa.
+
+  Un documento es una lista ordenada de BLOQUES. Cada bloque sabe que es, de que
+  region de la imagen salio, y que tan seguro esta:
+    { id, tipo, region:{x,y,ancho,alto}, confianza, contenido }
+  Tipos en la v1: titulo, parrafo, ecuacion, grafica.
+
+  contenido segun tipo:
+    titulo    { nivel, texto }
+    parrafo   { texto }
+    ecuacion  { latex, numerada }
+    grafica   { tipo_grafica, titulo,
+                ejes:{ x:{min,max,etiqueta,escala}, y:{...} },
+                series:[ { etiqueta, puntos:[[x,y],...] } ] }
+
+  EL BLOQUE grafica NO TIENE NI UN SOLO TRAZO, tiene numeros. Es D3 hecha
+  estructura de datos. Si alguien mete un "path" ahi, el diseno se rompio.
+
+  LAS DUDAS SON OBJETOS DE PRIMERA CLASE, en su propia lista, no escondidas
+  dentro del bloque, porque son lo que consume la etapa 5:
+    { id, bloque_id, tipo, region, descripcion,
+      alternativas:[ { valor, probabilidad } ] }
+  tipos de duda: simbolo_ambiguo, punto_incierto, escala_incierta,
+                 texto_ilegible
+  La region de la duda es MAS FINA que la del bloque: apunta al simbolo exacto,
+  para poder mostrar un recorte pequeno y preguntar una cosa concreta.
+
+  REQUISITO QUE SE DERIVA: la imagen normalizada se conserva junto al resultado.
+  Sin ella las coordenadas de las dudas no sirven de nada.
+
+  Tres reglas para que el contrato no se pudra:
+    1. Los consumidores IGNORAN lo que no conocen. Cuando se agreguen tabla,
+       ilustracion y firma, la composicion debe saltarse un bloque de tipo
+       desconocido con advertencia, no reventar. Se prueba desde la v1 metiendo
+       a proposito un bloque inventado.
+    2. La confianza SIEMPRE se propaga. Ningun bloque existe sin confianza. Si
+       un extractor no sabe estimarla, reporta baja; no la omite.
+    3. El contrato lleva VERSION. Al cambiar de forma incompatible sube a 2.0 y
+       la API sigue sirviendo 1.0 a quien ya integro.
+
+  Lo que compra: la composicion se prueba sin tocar una imagen (se le escribe un
+  JSON a mano), la extraccion se prueba sin LaTeX (se compara JSON contra el
+  esperado), y la API B2B ya queda disenada.
+
+
+--------------------------------------------------------------------------------
 CASOS DE USO REGISTRADOS PARA DESPUES DE LA V1
 --------------------------------------------------------------------------------
 
