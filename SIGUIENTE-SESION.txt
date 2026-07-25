@@ -151,25 +151,115 @@ ves "skipped" en vez de "passed", no es que pasen: es que no corrieron.
 
 
 -------------------------------------------------------------------------------
-  6. LO QUE SIGUE
+  6. AQUI ME QUEDE: DISENANDO LA FASE 1 (a medias)
 -------------------------------------------------------------------------------
 
-Hay dos caminos y no dependen uno del otro:
+Se empezo el diseno del EXTRACTOR DE GRAFICAS (imagen -> contrato), que es
+lo que responde I1. La sesion se corto a media conversacion de diseno.
 
-  (A) FASE 1 - EXTRACTOR DE GRAFICAS. Es lo que responde I1, la incognita
-      principal. Las etapas 1, 2 y 3 para el tipo `grafica`: de la imagen al
-      contrato. Su plan se escribe ahora, no antes, porque su descomposicion
-      dependia de usar el contrato de verdad — y ya se uso.
+OJO: las cinco decisiones de abajo estan tomadas y confirmadas una por una,
+pero TODAVIA NO ESTAN en notas-plan.md ni en ninguna especificacion. Viven
+solo en este archivo. Al retomar hay que pasarlas a su lugar.
 
-      Primer paso concreto: el generador sintetico de digitos (D33), que es
-      lo unico que hay que entrenar en toda la fase 1.
+LO QUE YA SE DECIDIO
 
-  (B) CICLO DE REPARACION (D17). Reparaciones deterministas, reintento y
-      degradacion por bloque. Mejora sobre el camino que ya existe. Mas
-      chico y menos incierto que (A).
+  F1  La escala se teclea; el clasificador de digitos NO entra en la fase 1.
+      Motivo: I1 en realidad son dos preguntas de peso muy distinto.
+          I1a  ?el rastreo es preciso?  -> si falla, no hay proyecto
+          I1b  ?se lee la escala sola?  -> si falla, el usuario teclea.
+                                           Es friccion, no muerte.
+      Los criterios 1 y 2 de la Seccion 11 (error mediano <2%, ninguno >5%)
+      se miden con la escala dada. El criterio 3 (escala leida bien en >95%)
+      es I1b y espera. D13 ya obliga a confirmar la escala de todas formas.
+
+  F2  Material de prueba: ESCALERA DE CUATRO NIVELES. Se agrega un nivel -1
+      sintetico que no estaba en la especificacion:
+
+          -1  Nuestro propio motor genera gráficas de pgfplots con datos
+              exactos, se compila y se rasteriza el PDF. Verdad perfecta,
+              cantidad ilimitada, cero trabajo manual. Corre en cada cambio.
+           0  Esas mismas, impresas y fotografiadas -> aisla la camara
+           1  Dibujadas a mano copiando datos elegidos -> AQUI se responde I1a
+           2  Las reales de los cuadernos
+
+      El motor de salida se vuelve el generador de material del motor de
+      entrada. Pero el nivel -1 NO responde I1a: solo el nivel 1 lo hace, y
+      ese hay que dibujarlo a mano. Falta decidir cuantas.
+
+  F3  Alcance: UNA SOLA CURVA, ejes rectos, con o sin rejilla. Fuera por
+      ahora: varias curvas, dispersion y barras. Motivo: dos curvas que se
+      cruzan es un problema distinto —separacion de curvas— y contamina la
+      medicion de I1a con una dificultad que no es la que se mide.
+
+  F4  Entrada: UN RECORTE QUE YA ES LA GRAFICA. Localizarla dentro de una
+      hoja con texto (etapa 2, segmentacion) SALE de la fase 1 y tendra su
+      propia fase.
+      >>> Esto REVISA lo escrito, que metia las etapas 1, 2 y 3 en la fase 1.
+          Anotarlo como decision cuando se escriba el diseno.
+
+  F5  Rastreo: BARRIDO POR COLUMNAS con centroide de la tinta, no
+      seguimiento secuencial. Es una operacion sobre el arreglo completo:
+      vectorizada, en milisegundos, SIN C++ y sin bucle por pixel.
+      >>> Esto REVISA la estrategia de lenguajes, que reservaba el
+          rastreador como el unico lugar donde entraria C++ con pybind11.
+          Anotarlo como decision.
+      Donde se rompe, sabido de antemano: tramos casi verticales (una
+      columna con mucha tinta deja el centroide en medio de un salto) y
+      curvas que se doblan hacia atras, tipo histeresis, donde hay dos
+      valores para la misma x. Lo segundo no tiene arreglo con este metodo.
+      Si la medicion lo tumba, se pasa al secuencial sabiendo por que.
+
+LA PREGUNTA EXACTA DONDE SE CORTO
+
+  Como se entrega la fase 1. Estaban sobre la mesa tres formas y la
+  recomendacion era la A, faltaba el visto bueno:
+
+    A (recomendada)  Dos comandos encadenables, con el contrato de frontera:
+
+        ctex-extraer recorte.png --escala-x 0,10 --escala-y -1,1 \
+                     --salida hoja.json
+        ctex hoja.json --salida ./salida
+
+        Mas un tercer comando `ctex-medir` que corre la suite de I1a sobre
+        un corpus y escupe los numeros. La Seccion 11 lo exige: "si medir
+        es trabajoso, no se mide".
+
+        Razon de fondo: el contrato ya tiene validador y 89 pruebas. Como
+        frontera dura, el extractor tiene un blanco contra el cual entregar
+        y lo que produzca mal se caza el primer dia.
+
+    B  Un solo comando de imagen a PDF. Mas lucido, pero repega dos motores
+       que D2 separo, y un fallo de extraccion se ve igual que uno de
+       composicion.
+
+    C  Solo biblioteca y suite de medicion, sin comando. Lo mas rapido para
+       responder I1a y nada mas; deja el extractor sin forma de usarse.
+
+COMO SEGUIR, EN ORDEN
+
+    1. Contestar esa pregunta (A, B o C).
+    2. Presentar el diseno por secciones y aprobarlo seccion por seccion:
+       arquitectura, componentes, flujo de datos, errores y pruebas.
+    3. Escribir la especificacion en
+       docs/superpowers/specs/2026-07-25-extractor-graficas-design.md
+    4. Pasar F1..F5 al registro de decisiones, con las dos revisiones
+       marcadas arriba (F4 y F5) escritas como decisiones que revocan.
+    5. De ahi sale el plan de implementacion, como se hizo con la caminata.
+
+    Si retomas con Claude, basta decirle:
+        "Lee SIGUIENTE-SESION.txt y sigue el diseño de la fase 1 desde
+         donde se corto"
+
+-------------------------------------------------------------------------------
+  6b. EL OTRO CAMINO, POR SI SE PREFIERE
+-------------------------------------------------------------------------------
+
+  CICLO DE REPARACION (D17). Reparaciones deterministas, reintento y
+  degradacion por bloque. Mejora sobre el camino que ya existe y funciona.
+  Mas chico y mucho menos incierto que la fase 1, pero no responde ninguna
+  incognita.
 
   Tambien pendiente, sin urgencia:
-      - Material de prueba, niveles 0 y 1 de la Seccion 11.
       - El nombre. C-tex esta descartado (se lee como el lenguaje C).
         Finalistas: Scan2PDF y SnapTeX. Veredicto pendiente.
         Repositorio remoto: github.com/AldoZM/Notebook-Latex
@@ -189,5 +279,10 @@ Hay dos caminos y no dependen uno del otro:
       pruebas de seguridad, preguntarse no solo que comandos son
       peligrosos, sino de cuantas formas se puede escribir el mismo
       comando.
+
+    - Correccion util para la fase 1: el criterio de exito de I1 YA ESTA
+      definido en la Seccion 11 (error mediano <2% del rango, ninguno >5%,
+      escala bien en >95%). No hay que inventarlo. Lo que falta es el
+      material con verdad conocida para medirlo.
 
 ===============================================================================
