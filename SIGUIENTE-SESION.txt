@@ -1,0 +1,193 @@
+===============================================================================
+  C-tex  ·  DONDE ME QUEDE  ·  2026-07-25
+===============================================================================
+
+Nota de continuidad. Leer esto primero al retomar el proyecto.
+
+
+-------------------------------------------------------------------------------
+  1. ESTADO: TODO COMPROMETIDO, NADA PENDIENTE
+-------------------------------------------------------------------------------
+
+Rama: main
+Ultimo commit: cierre de la sesion del 2026-07-25
+
+A diferencia de la sesion pasada, el arbol de trabajo esta limpio. No hay
+nada que revisar antes de empezar.
+
+Recordatorio: sin firma de IA ni Co-Authored-By en los commits.
+
+
+-------------------------------------------------------------------------------
+  2. LO QUE PASO ESTA SESION
+-------------------------------------------------------------------------------
+
+HAY CODIGO. La caminata esqueletica esta ejecutada, las 10 tareas.
+
+    JSON del contrato -> validador -> compositor -> Tectonic -> PDF
+
+    89 pruebas pasando. El PDF sale con el titulo, la ecuacion numerada y la
+    grafica dibujada por pgfplots, vectorial, no una imagen pegada.
+
+Tres decisiones nuevas:
+
+    D31   El campo `latex` de las ecuaciones SI es un campo donde cabe un
+          comando. La Seccion 9 afirmaba lo contrario y era falso. La lista
+          blanca es la compuerta de ese canal, no una precaucion opcional.
+
+    D32   Y esa lista blanca, sola, era EVADIBLE. La notacion ^^ de TeX
+          codifica un caracter por su valor: ^^77 es 'w', y la sustitucion
+          ocurre antes de que exista el nombre del comando, asi que
+          \^^77rite18 es \write18 para el motor y no es ningun comando para
+          una busqueda de \[a-zA-Z]+.
+
+          Comprobado compilando: \^^73ection{X} produjo una seccion real.
+
+          Cerrado: se prohiben dos acentos seguidos en el campo latex. El
+          superindice normal (x^2) no se toca. Tres ataques nuevos en el
+          corpus.
+
+    D33   Ruta de datos, cierra la parte investigable de R4.
+
+R4 BAJA DE BLOQUEANTE A VIGILADO. La fase 1 puede arrancar.
+
+
+-------------------------------------------------------------------------------
+  3. LO QUE SALIO DE R4, EN CORTO
+-------------------------------------------------------------------------------
+
+El informe completo, con la licencia exacta de cada conjunto y la URL donde
+se verifico, esta en docs/planeacion/r4-licencias-datos.md
+
+    DIGITOS     Camino limpio. Sintetico propio con tipografias OFL. Son 13
+                clases de un caracter y el dominio son etiquetas de eje,
+                escritas con cuidado. Dias de trabajo, no meses.
+
+    ECUACIONES  Un solo camino. CROHME, MathWriting y HME100K estan los tres
+                cerrados al uso comercial. Queda Aida Calculus (Pearson,
+                CDLA-Sharing-1.0), unico corpus manuscrito con permiso
+                comercial verificado. Plan: Donut base (MIT) -> preentrenar
+                con IM2LATEX-100K (CC0) -> afinar con Aida -> sintetico
+                propio. NO entrenar desde cero.
+
+    PROSA       El caso mas pobre. IAM, RIMES e Imgur5K, los tres estandares,
+                todos no comerciales. Queda GNHK (CC BY 4.0) y sintetico.
+
+LA TRAMPA QUE VA A VOLVER A APARECER:
+
+    UniMER-1M se publica en Hugging Face diciendo Apache 2.0, se ve limpio,
+    y esta construido sobre CROHME y HME100K. Nadie otorga mas derechos de
+    los que tiene.
+
+    Igual con los pesos: trocr-*-handwritten es MIT pero esta afinado sobre
+    IAM. Nougat tiene codigo MIT y pesos CC-BY-NC.
+
+    => Revisar de que esta hecho, no solo que etiqueta trae.
+
+CABOS SUELTOS (ninguno detiene la fase 1):
+
+    - SD19 podria estar bajo el programa SRD de NIST, que si asegura
+      copyright. Solo importa si se va a usar; la ruta principal es
+      sintetica.
+    - La OFL no contemplo los conjuntos de imagenes de glifos, y no todas
+      las familias de Google Fonts son OFL. Revisar familia por familia
+      antes de construir el generador.
+    - Dos preguntas de abogado, listadas en D33.
+
+
+-------------------------------------------------------------------------------
+  4. LOS ARCHIVOS DEL PROYECTO
+-------------------------------------------------------------------------------
+
+  CODIGO
+
+  src/ctex/contrato/       esquema.json v1.0 + validador
+  src/ctex/composicion/    escapado (la pieza de seguridad), plantilla,
+                           bloques, compositor
+  src/ctex/compilacion/    Tectonic con --untrusted y limite de 60 s
+  src/ctex/cli.py          el comando `ctex`
+  tests/                   89 pruebas, incluido el corpus de ataques
+
+  DOCUMENTOS
+
+  README.md
+      Portada. La idea, por que el motor es propio, como probarlo.
+
+  docs/superpowers/specs/2026-07-21-motor-conversion-latex-design.md
+      QUE se construye. 15 secciones.
+
+  docs/planeacion/notas-plan.md
+      POR QUE es asi. 33 decisiones con columna de estado.
+
+  docs/planeacion/r4-licencias-datos.md            <- NUEVO
+      Licencias de datos y pesos, verificadas una por una.
+
+  docs/planeacion/proceso-de-desarrollo.md
+      COMO se pasa del diseno al producto. Las 8 etapas.
+
+  docs/superpowers/plans/2026-07-22-caminata-esqueletica.md
+      El plan ya ejecutado. Se conserva como se escribio.
+
+  docs/planeacion/antecedente-m14.md
+      De donde salio la idea.
+
+
+-------------------------------------------------------------------------------
+  5. COMO RETOMAR
+-------------------------------------------------------------------------------
+
+    cd "D:\Codigo Abierto\C-tex"
+    .venv\Scripts\activate
+    python -m pytest                  # deben pasar 89
+
+    ctex tests/datos/hoja_ejemplo.json --salida ./salida
+
+Tectonic 0.16.9 esta instalado en C:\Users\aldo-\bin, y esa carpeta ya esta
+en el PATH de usuario. Si `tectonic --version` no responde, abrir una
+terminal nueva: el PATH se actualizo en esta maquina el 2026-07-25.
+
+OJO: las pruebas que compilan se SALTAN solas si no encuentran Tectonic. Si
+ves "skipped" en vez de "passed", no es que pasen: es que no corrieron.
+
+
+-------------------------------------------------------------------------------
+  6. LO QUE SIGUE
+-------------------------------------------------------------------------------
+
+Hay dos caminos y no dependen uno del otro:
+
+  (A) FASE 1 - EXTRACTOR DE GRAFICAS. Es lo que responde I1, la incognita
+      principal. Las etapas 1, 2 y 3 para el tipo `grafica`: de la imagen al
+      contrato. Su plan se escribe ahora, no antes, porque su descomposicion
+      dependia de usar el contrato de verdad — y ya se uso.
+
+      Primer paso concreto: el generador sintetico de digitos (D33), que es
+      lo unico que hay que entrenar en toda la fase 1.
+
+  (B) CICLO DE REPARACION (D17). Reparaciones deterministas, reintento y
+      degradacion por bloque. Mejora sobre el camino que ya existe. Mas
+      chico y menos incierto que (A).
+
+  Tambien pendiente, sin urgencia:
+      - Material de prueba, niveles 0 y 1 de la Seccion 11.
+      - El nombre. C-tex esta descartado (se lee como el lenguaje C).
+        Finalistas: Scan2PDF y SnapTeX. Veredicto pendiente.
+        Repositorio remoto: github.com/AldoZM/Notebook-Latex
+      - Precios y planes: reabiertos casi por completo. Solo sobrevive que
+        la cuota se mide en PAGINAS, no en documentos.
+
+
+-------------------------------------------------------------------------------
+  7. RECORDATORIOS
+-------------------------------------------------------------------------------
+
+    - Cuando el codigo contradiga al diseno, gana el codigo, pero se anota:
+      decision nueva que revoca la vieja, con su motivo. NO se edita el
+      pasado. D31 y D32 son el ejemplo de esta sesion.
+
+    - Una lista blanca solo es tan buena como su analizador. Al escribir
+      pruebas de seguridad, preguntarse no solo que comandos son
+      peligrosos, sino de cuantas formas se puede escribir el mismo
+      comando.
+
+===============================================================================

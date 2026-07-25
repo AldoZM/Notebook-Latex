@@ -3,12 +3,29 @@
 Servicio que convierte documentos capturados —fotografía, papel escaneado— en
 PDF profesional compuesto con LaTeX.
 
-> **Estado: diseño del motor aprobado.** No hay código todavía. Sigue el plan de
-> implementación.
+> **Estado al 2026-07-25: la mitad de atrás del motor existe y compila.** Un JSON
+> del contrato produce un PDF de verdad, con la gráfica dibujada por pgfplots. 89
+> pruebas. Lo que falta es la mitad de adelante: de la imagen al contrato.
 >
-> **Revisión del 2026-07-22 — el motor es propio.** El reconocimiento corre en
-> nuestro servidor, con nuestro código y nuestros pesos. El motor no llama a la
-> API de nadie (D28).
+> **El motor es propio (D28).** El reconocimiento corre en nuestro servidor, con
+> nuestro código y nuestros pesos. No llama a la API de nadie.
+
+## Probarlo
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate          # en Git Bash: source .venv/Scripts/activate
+pip install -e ".[dev]"
+
+python -m pytest                 # 89 pruebas
+ctex tests/datos/hoja_ejemplo.json --salida ./salida
+```
+
+Sale `salida/documento.pdf` con el título, la ecuación numerada y la gráfica.
+Junto a él queda `documento.tex`, que es del usuario.
+
+Requiere [Tectonic](https://tectonic-typesetting.github.io/) en el PATH. Sin él,
+las pruebas que compilan se saltan solas y el comando no funciona.
 
 ## La idea
 
@@ -86,9 +103,10 @@ Si llegas nuevo al proyecto, léelas en este orden:
 | # | Documento | Qué contiene |
 |---|---|---|
 | 1 | [**Diseño del motor**](docs/superpowers/specs/2026-07-21-motor-conversion-latex-design.md) | La especificación: **qué** se va a construir. Arquitectura, contrato entre etapas, seguridad y criterios de éxito |
-| 2 | [Registro de decisiones](docs/planeacion/notas-plan.md) | **Por qué** el proyecto es así. Las 30 decisiones con su razonamiento, los riesgos y lo que quedó aparcado |
+| 2 | [Registro de decisiones](docs/planeacion/notas-plan.md) | **Por qué** el proyecto es así. Las 33 decisiones con su razonamiento, los riesgos y lo que quedó aparcado |
 | 3 | [Proceso de desarrollo](docs/planeacion/proceso-de-desarrollo.md) | **Cómo** se pasa del diseño al producto. Las ocho etapas, qué produce cada una y cómo se sabe que terminó |
-| 4 | [Antecedente](docs/planeacion/antecedente-m14.md) | De dónde salió la idea y qué objeción tuvo que superar para existir |
+| 4 | [Licencias de datos (R4)](docs/planeacion/r4-licencias-datos.md) | Qué conjuntos de entrenamiento existen y **cuáles permiten uso comercial**, con la URL donde se verificó cada licencia |
+| 5 | [Antecedente](docs/planeacion/antecedente-m14.md) | De dónde salió la idea y qué objeción tuvo que superar para existir |
 
 Con leer el documento 1 tienes el contexto suficiente para hablar del proyecto.
 El 2 es para cuando quieras discutir una decisión: ahí está el argumento
@@ -114,13 +132,18 @@ para leer una gráfica, solo uno reconoce algo, y lo que reconoce son dígitos:
 clasificador de dígitos** — antes de emprender el reconocedor de ecuaciones, que
 es la parte larga.
 
-| Fase | Qué | Qué responde |
-|---|---|---|
-| 0 | Verificar qué datos de entrenamiento existen y **bajo qué licencia** | Un riesgo bloqueante |
-| 1 | Extractor de gráficas completo | **I1** |
-| 2 | Aparato de confianza y su calibración | **I2** |
-| 3 | Reconocedor de ecuaciones | — |
-| 4 | Reconocedor de prosa | — |
+| Fase | Qué | Qué responde | Estado |
+|---|---|---|---|
+| 0 | Verificar qué datos de entrenamiento existen y **bajo qué licencia** | Un riesgo bloqueante | **hecha** (D33) |
+| 1 | Extractor de gráficas completo | **I1** | siguiente |
+| 2 | Aparato de confianza y su calibración | **I2** | — |
+| 3 | Reconocedor de ecuaciones | — | — |
+| 4 | Reconocedor de prosa | — | — |
+
+De la fase 0 salió que **no hay conjunto de matemáticas manuscritas de uso
+comercial** salvo uno, así que el clasificador de dígitos se entrena con datos
+sintéticos propios y el de ecuaciones parte de pesos abiertos. El detalle, con
+las licencias verificadas una por una, está en el documento 4.
 
 ## Nombre
 

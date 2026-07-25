@@ -9,7 +9,8 @@ tenga que volver a recorrer lo ya recorrido.
 - **Carpeta local:** `D:\Codigo Abierto\C-tex`
 - **Repositorio:** https://github.com/AldoZM/Notebook-Latex
 - **Inicio:** 2026-07-21
-- **Última revisión:** 2026-07-22 — D28 revoca la dependencia de una API externa
+- **Última revisión:** 2026-07-25 — la caminata esquelética existe y compila;
+  D32 cierra una evasión real de la lista blanca y D33 resuelve R4
 
 ---
 
@@ -49,6 +50,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D30 | Orden de construcción: las gráficas primero | |
 | D31 | El campo `latex` es la excepción del contrato; la lista blanca es su compuerta | corregida por D32 |
 | D32 | La lista blanca de comandos, sola, es evadible con la notación `^^` | |
+| D33 | Ruta de datos: sintético propio, y pesos abiertos para ecuaciones | resuelve R4 |
 
 ---
 
@@ -280,6 +282,70 @@ peligrosos*, sino *de cuántas formas se puede escribir el mismo comando*.
 Los tres ataques —`\^^77rite18`, `\^^69nput` y la variante de cuatro dígitos—
 quedaron en el corpus de `tests/test_seguridad.py`, y hay una prueba que afirma
 que ningún `^^` sobrevive al `.tex`.
+
+### D33 — La ruta de datos: sintético propio primero, pesos abiertos para ecuaciones
+
+Cierra la parte investigable de **R4**. El informe completo, con la licencia
+exacta de cada conjunto y la URL donde se verificó, está en
+[`r4-licencias-datos.md`](r4-licencias-datos.md).
+
+**El veredicto, en una línea: R4 no bloquea la fase 1, pero sí condiciona la
+fase 3.** Los tres conjuntos grandes de matemáticas manuscritas —CROHME,
+MathWriting y HME100K— están cerrados al uso comercial. Los tres de prosa —IAM,
+RIMES e Imgur5K— también.
+
+| Reconocedor | Ruta decidida |
+|---|---|
+| **Dígitos** (fase 1) | **Generador sintético propio.** Tipografías manuscritas bajo SIL OFL, aumentación, fondo de papel. Quita el problema de licencia de raíz y el conjunto queda como activo nuestro |
+| **Ecuaciones** (fase 3) | **No entrenar desde cero.** Donut base (MIT) → preentrenar el decodificador con IM2LATEX-100K (CC0) → afinar con Aida Calculus (CDLA-Sharing-1.0) → generador sintético propio |
+| **Prosa** (fase 4) | GNHK (CC BY 4.0) y sintético. Rendimiento moderado esperado: no hay un IAM libre esperando |
+
+**Por qué lo sintético gana en dígitos y no es una salida barata.** Son 13 clases
+de un solo carácter, y el dominio objetivo son etiquetas de eje —escritas
+pequeñas y con cuidado, no caligrafía libre—, así que la brecha entre sintético y
+real es mucho menor que en prosa. Días de trabajo, no meses. Y encaja con D30:
+la fase 1 no depende de conseguir datos de nadie.
+
+**Aida Calculus es el hallazgo que salva la fase 3.** Es el único corpus de
+expresiones manuscritas con permiso comercial verificado. La cláusula 3.5 de
+CDLA-Sharing-1.0 dice que el acuerdo no impone restricciones sobre los
+*Results*, y un modelo entrenado es un Result: **el copyleft no se contagia a los
+pesos**. Su límite es el dominio, límites de cálculo, que el generador sintético
+propio tiene que compensar.
+
+**La trampa que hay que recordar, porque volverá a aparecer:** UniMER-1M se
+publica en Hugging Face declarando Apache 2.0, se ve limpio, y está construido
+sobre CROHME y HME100K. **Nadie puede otorgar más derechos de los que tiene.** La
+etiqueta permisiva aguas abajo no sanea el origen. Lo mismo con los pesos:
+`trocr-*-handwritten` es MIT pero está afinado sobre IAM, y Nougat tiene código
+MIT con pesos CC-BY-NC. **La licencia del artefacto no cura la procedencia del
+dato.** Antes de usar cualquier conjunto o peso: revisar de qué está hecho, no
+solo qué etiqueta trae.
+
+**Lo que queda abierto, y por qué R4 baja de bloqueante a vigilado y no a
+cerrado:**
+
+1. **SD19 sin resolver.** NIST distingue entre datos de dominio público y
+   "Standard Reference Data", sobre los cuales sí asegura copyright. SD19 podría
+   estar en la segunda categoría y ninguna ficha lo aclara. **No es urgente**
+   porque la ruta principal de dígitos es sintética y SD19 solo aporta variedad
+   de escritores reales — pero si se va a usar, hay que resolverlo antes.
+2. **La OFL y los conjuntos de imágenes de glifos.** La licencia no contempló ese
+   uso al redactarse, y no todas las familias de Google Fonts están bajo OFL
+   —algunas son Apache 2.0—. Hay que revisar familia por familia antes de
+   construir el generador.
+3. **Dos preguntas que son de abogado, no de búsqueda web:** si entrenar un
+   modelo crea una "obra adaptada" para efectos de CC BY-ND y CC BY-SA, y si la
+   renuncia CC0 de IM2LATEX-100K es oponible respecto del contenido derivado de
+   artículos de arXiv de terceros. Conviene una revisión legal antes de
+   comprometer presupuesto de entrenamiento.
+
+**Acción transversal que se adopta:** un archivo de procedencia de datos en el
+repositorio que registre, por cada conjunto que entre a un entrenamiento:
+nombre, versión, fecha de descarga, URL, copia local del texto de la licencia y
+el aviso de atribución exigido. Se crea cuando entre el primer conjunto, no
+antes. Cuando llegue el primer cliente empresarial con diligencia debida, ese
+archivo es la diferencia entre responder en un día y auditar durante un mes.
 
 ---
 
@@ -926,16 +992,41 @@ parte más cara.~~
 > acoplamiento entre R2 y R3 que obligaba a medirlos juntos. Se sustituye por R6,
 > que es un riesgo de cómputo, no de factura por llamada.
 
-**R4 — Licencia de los datos de entrenamiento.** **Bloqueante.** Este es un
+**R4 — Licencia de los datos de entrenamiento.** ~~**Bloqueante.**~~ Este es un
 servicio de paga, y no todo conjunto de datos académico permite uso comercial. Un
 modelo entrenado con datos de cláusula no comercial es inservible para el
 producto, y el problema se descubre tarde y duele. Se resuelve en la fase 0,
 antes de escribir código de entrenamiento. Si no hay datos utilizables, se activa
 el plan de contingencia de D28.1.
 
+> **Deja de ser bloqueante el 2026-07-25 por D33.** La investigación se hizo y
+> hay ruta comercial limpia para los tres reconocedores. El temor era fundado
+> —CROHME, MathWriting, HME100K, IAM, RIMES e Imgur5K están todos cerrados al
+> uso comercial— pero existen alternativas: sintético propio para dígitos, y
+> Donut + IM2LATEX + Aida para ecuaciones. **La fase 1 arranca sin esperar a
+> nadie**, que era lo que el bloqueo impedía.
+>
+> Baja a **vigilado**, no a cerrado, por tres cabos sueltos que están en D33: la
+> categoría de copyright de SD19, la OFL aplicada a conjuntos de imágenes de
+> glifos, y dos preguntas que necesitan abogado. Ninguno detiene la fase 1.
+>
+> **Lo que se aprendió y hay que conservar:** una etiqueta permisiva aguas abajo
+> no sanea un origen restringido. UniMER-1M dice Apache 2.0 y está hecho de
+> CROHME; TrOCR manuscrito dice MIT y está afinado sobre IAM. Revisar de qué está
+> hecho, no solo qué etiqueta trae.
+
 **R5 — Brecha de calidad en ecuaciones.** Un reconocedor propio de matemáticas
 manuscritas va a ser peor que un modelo de frontera, al menos al principio. Es el
 costo aceptado de D28.
+
+> **Agravado el 2026-07-25 por D33.** No es solo que el modelo sea propio: es que
+> los tres conjuntos grandes del área —CROHME, MathWriting, HME100K— están
+> cerrados al uso comercial, así que **no competimos con los mismos datos** que
+> quien publica el estado del arte. Lo que queda es Aida (un solo dominio,
+> límites de cálculo) más lo sintético propio. La brecha va a ser mayor de lo que
+> se suponía cuando se escribió este riesgo, y la fase 3 probablemente necesite
+> recolectar un corpus propio con cesión de derechos por escrito. Ese corpus
+> sería, además, la ventaja defendible del proyecto.
 
 **No afecta a las gráficas** —ahí se compite contra visión clásica, no contra
 modelos— así que **no toca a I1**. Afecta a la fase 3, y probablemente obligue a

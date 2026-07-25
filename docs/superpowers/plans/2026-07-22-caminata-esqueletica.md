@@ -1,5 +1,17 @@
 # Caminata esquelética — Plan de implementación
 
+> ## EJECUTADO el 2026-07-25. Las 10 tareas están hechas.
+>
+> **Resultado:** 89 pruebas pasando. `ctex tests/datos/hoja_ejemplo.json`
+> produce un PDF con el título, la ecuación numerada y la gráfica dibujada por
+> pgfplots. El corpus de ataques queda bloqueado.
+>
+> **Lo que el plan no anticipó:** la lista blanca de comandos era evadible con la
+> notación `^^` de TeX. Se comprobó compilando —`\^^73ection{X}` produjo una
+> sección real— y se cerró en la misma sesión. Ver **D32** en el registro de
+> decisiones. Las casillas de abajo quedan sin marcar a propósito: el documento
+> se conserva como se escribió, y lo que pasó al ejecutarlo está en el registro.
+
 > **Para trabajadores agénticos:** SUB-SKILL REQUERIDA: usa
 > superpowers:subagent-driven-development (recomendado) o
 > superpowers:executing-plans para implementar este plan tarea por tarea. Los
