@@ -1,0 +1,27 @@
+[project]
+name = "ctex"
+version = "0.1.0"
+description = "Motor de conversion de documentos capturados a PDF via LaTeX"
+requires-python = ">=3.11"
+dependencies = [
+    "jsonschema>=4.20",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+ctex = "ctex.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ctex = ["contrato/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
