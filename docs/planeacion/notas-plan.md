@@ -9,40 +9,44 @@ tenga que volver a recorrer lo ya recorrido.
 - **Carpeta local:** `D:\Codigo Abierto\C-tex`
 - **Repositorio:** https://github.com/AldoZM/Notebook-Latex
 - **Inicio:** 2026-07-21
+- **Última revisión:** 2026-07-22 — D28 revoca la dependencia de una API externa
 
 ---
 
 ## Índice de decisiones
 
-| # | Decisión |
-|---|---|
-| D1 | Dos productos, un solo motor |
-| D2 | Extracción y composición son etapas separadas |
-| D3 | **Las gráficas salen como datos, no como dibujo** |
-| D4 | Dibujos, ilustraciones y firmas sí se vectorizan |
-| D5 | La geometría de la página sí es de LaTeX |
-| D6 | La salida es re-tipografiada; el facsímil queda fuera |
-| D7 | Alcance de la v1: texto, ecuaciones y gráficas |
-| D8 | **Revisión dirigida por confianza** |
-| D9 | Se construye primero el motor, por línea de comandos |
-| D10 | Python no dibuja gráficas |
-| D11 | Estrategia de lenguajes: una sola frontera con C++ |
-| D12 | La velocidad para empresas es paralelismo, no lenguaje |
-| D13 | La escala se confirma siempre en la v1 |
-| D14 | Confianza por consenso, para texto y ecuaciones |
-| D15 | Confianza geométrica, para gráficas |
-| D16 | Una sola plantilla en la v1 |
-| D17 | Ciclo de compilar, reparar y reintentar |
-| D18 | El motor siempre entrega un PDF |
-| D19 | Seguridad: compilar es ejecutar |
-| D20 | Nunca se cobra un trabajo que falló |
-| D21 | Las superficies: web, web móvil y app |
-| D22 | La normalización no se implementa tres veces |
-| D23 | Extracción y compilación son dos servicios separados |
-| D24 | Cloud Run como destino, con disparador de mudanza a VPS |
-| D25 | **El costo dominante es el modelo, no el hospedaje** |
-| D26 | El plan gratuito se redimensiona a páginas al mes |
-| D27 | Tres palancas de costo, la principal es la API de lotes |
+| # | Decisión | Estado |
+|---|---|---|
+| D1 | Dos productos, un solo motor | |
+| D2 | Extracción y composición son etapas separadas | |
+| D3 | **Las gráficas salen como datos, no como dibujo** | |
+| D4 | Dibujos, ilustraciones y firmas sí se vectorizan | |
+| D5 | La geometría de la página sí es de LaTeX | |
+| D6 | La salida es re-tipografiada; el facsímil queda fuera | |
+| D7 | Alcance de la v1: texto, ecuaciones y gráficas | revisada por D30 |
+| D8 | **Revisión dirigida por confianza** | |
+| D9 | Se construye primero el motor, por línea de comandos | |
+| D10 | Python no dibuja gráficas | |
+| D11 | Estrategia de lenguajes: una sola frontera con C++ | |
+| D12 | La velocidad para empresas es paralelismo, no lenguaje | |
+| D13 | La escala se confirma siempre en la v1 | |
+| D14 | Confianza por consenso, para texto y ecuaciones | **revocada por D29** |
+| D15 | Confianza geométrica, para gráficas | |
+| D16 | Una sola plantilla en la v1 | |
+| D17 | Ciclo de compilar, reparar y reintentar | |
+| D18 | El motor siempre entrega un PDF | |
+| D19 | Seguridad: compilar es ejecutar | reforzada por D28 |
+| D20 | Nunca se cobra un trabajo que falló | |
+| D21 | Las superficies: web, web móvil y app | |
+| D22 | La normalización no se implementa tres veces | |
+| D23 | Extracción y compilación son dos servicios separados | argumento reescrito |
+| D24 | Cloud Run como destino, con disparador de mudanza a VPS | **reabierta** |
+| D25 | El costo dominante es el modelo, no el hospedaje | **revocada por D28** |
+| D26 | El plan gratuito se redimensiona a páginas al mes | **revocada por D28** |
+| D27 | Tres palancas de costo, la principal es la API de lotes | **revocada por D28** |
+| D28 | **El motor se construye, no se contrata** | |
+| D29 | La confianza se lee del decodificador y se calibra | |
+| D30 | Orden de construcción: las gráficas primero | |
 
 ---
 
@@ -59,6 +63,138 @@ abiertas, la cuarta —reconocimiento local en el dispositivo, sin internet— q
 descartada por el pivote mismo. Un servicio de paga no corre el modelo en la
 máquina del cliente. Las otras tres —el ciclo de corrección, el compilador en el
 ciclo y las convenciones propias— siguen vivas y describen el mismo producto.
+
+---
+
+## El motor es propio
+
+> Decidido el 2026-07-22. Es la decisión más consecuente tomada hasta ahora:
+> revoca cinco decisiones y reordena la construcción entera.
+
+### D28 — El motor se construye, no se contrata
+
+**El reconocimiento corre en nuestro servidor, con nuestro código y nuestros
+pesos. El motor no llama a la API de nadie.**
+
+Esta decisión revoca el supuesto que sostenía toda la sección de infraestructura:
+que la etapa 3 sería una llamada a un modelo de visión de terceros.
+
+**Por qué.** El antecedente dejó un filtro escrito:
+
+> Sobreviven los proyectos donde el modelo no puede estar presente mientras el
+> programa corre.
+
+El diseño anterior lo violaba y lo resolvía por reinterpretación: el modelo sí
+estaba en el ciclo de ejecución —tres llamadas por región, diez regiones por
+página— y se argumentaba que el aporte propio estaba *alrededor* del modelo. Era
+un argumento legítimo, pero era una reinterpretación, no un cumplimiento.
+
+Con el motor propio la tensión desaparece: **el modelo es el aporte.** El
+proyecto pasa el filtro de forma directa, sin argumentar.
+
+**Lo que cuesta**, dicho sin adornos: el reconocimiento propio de matemáticas
+manuscritas va a ser peor que el de un modelo de frontera, al menos al principio
+(R5). Y aparece una dependencia nueva que antes no existía: los datos de
+entrenamiento y su licencia (R4).
+
+**Lo que compra:**
+
+| | |
+|---|---|
+| **Costo marginal** | Desaparece el costo por token. La página cuesta segundos de cómputo propio |
+| **Confianza** | Se lee del decodificador y se calibra, en vez de inferirse por consenso (D29) |
+| **Seguridad** | Ningún contenedor necesita salida a internet. La política de red se vuelve uniforme (D19) |
+| **Independencia** | No hay proveedor que cambie de precio, de modelo o de política |
+
+**Lo que no cambia.** El contrato de la Sección 5 ya aislaba la extracción del
+resto del sistema, así que esta decisión toca **una sola etapa**. Las etapas 1,
+2, 4, 5, 6 y 7 estaban ya libres de modelo y siguen idénticas.
+
+Ese aislamiento es además lo que permite empezar con un reconocedor mediocre y
+reemplazarlo después sin tocar nada más — el mismo argumento que D11 aplica al
+rastreador de curvas, ahora aplicado a la etapa entera. **El contrato ya era la
+frontera de pruebas y la frontera de seguridad; también es la frontera de
+proveedor.**
+
+### D28.1 — Pesos propios; los abiertos son el plan de contingencia
+
+Se asume lo estricto: **pesos entrenados por nosotros**, sujeto a que la fase 0
+confirme que existen datos con licencia utilizable para un servicio de paga (R4).
+
+Si no los hay, se reevalúa servir pesos abiertos en nuestro servidor. Eso sigue
+cumpliendo lo esencial de D28 —sin API externa, sin costo por página, sin
+dependencia de proveedor— aunque los pesos sean de alguien más.
+
+La elección no bloquea nada porque **la arquitectura es idéntica en los dos
+casos**: un reconocedor nuestro detrás del contrato, sin red, en nuestro
+contenedor. Se puede cambiar de camino sin tocar el resto del motor.
+
+### D29 — La confianza se lee del decodificador y se calibra
+
+**Reemplaza a D14.**
+
+D14 usaba consenso de tres llamadas porque a un modelo ajeno no se le pueden
+pedir sus probabilidades reales: solo se le puede preguntar cuán seguro está, y
+esa respuesta está mal calibrada. Con un modelo propio esa limitación no existe:
+**la distribución de salida del decodificador se lee directamente.**
+
+Y lo que importa más: **se puede calibrar.** El escalado de temperatura sobre
+nuestro propio conjunto de validación es procedimiento estándar y bien entendido.
+El diagrama de fiabilidad de la Sección 7 deja de ser solo un instrumento de
+medición y se convierte en algo optimizable.
+
+> **Efecto sobre los riesgos: R2 se encoge mucho.** Con un modelo ajeno, la mala
+> calibración es un hecho que se sufre; con uno propio, es un defecto que se
+> corrige. Y desaparece el triple gasto de D14 junto con su acoplamiento a R3.
+
+El campo `alternativas` del contrato se llena igual de bien, o mejor: sale de las
+primeras k salidas del decodificador con sus probabilidades, en vez de contar
+votos.
+
+D15 —confianza geométrica para gráficas— no cambia.
+
+### D30 — Orden de construcción: las gráficas primero
+
+**El hallazgo que lo ordena todo: la gráfica casi no necesita reconocimiento.**
+
+De los siete pasos de la Sección 6, solo el paso 2 —leer las etiquetas de los
+ejes— reconoce algo, y lo que reconoce son **números**: `0`, `5`, `10`, `−1`,
+`0.5`. Trece clases, con datos de entrenamiento sintéticos triviales de generar.
+Los otros seis pasos son visión clásica y aritmética.
+
+Y D13 ya regala el resto: si el usuario va a confirmar la escala de cada gráfica
+de todas formas, el **texto** de la etiqueta del eje —`n`, `error`— lo teclea ahí
+mismo, sin fricción adicional. **En la v1 no hace falta reconocer una sola
+palabra para producir una gráfica correcta.**
+
+"Reconocer el documento" no es un problema, son tres, y el diseño anterior los
+trataba como uno solo. Esa era la raíz de la sensación de que hacía falta un
+modelo grande:
+
+| Sub-problema | Qué reconoce | Dificultad |
+|---|---|---|
+| **Etiquetas de ejes** | Dígitos y signos | **Baja.** ~13 clases, clasificador convolucional pequeño |
+| **Prosa** | Texto manuscrito corrido | Media. Arquitectura conocida |
+| **Ecuaciones** | Matemáticas manuscritas a LaTeX | **Alta.** Es el problema caro |
+
+Por tanto, el orden:
+
+| Fase | Qué se construye | Qué responde |
+|---|---|---|
+| **0** | Verificar qué conjuntos de datos públicos existen y **bajo qué licencia**. Generar el material de prueba de niveles 0 y 1 | Despeja R4, que es bloqueante |
+| **1** | Extractor de gráficas completo: visión clásica, clasificador de dígitos, confirmación de escala | **I1** |
+| **2** | Aparato de confianza y su calibración | **I2** |
+| **3** | Reconocedor de ecuaciones | — |
+| **4** | Reconocedor de prosa | — |
+
+Las fases 1 y 2 responden **las dos incógnitas del proyecto** sin depender de
+nadie y sin entrenar nada más que un clasificador de dígitos. La fase 3 es la
+larga y la que define el calendario real, y es mucho más barata de emprender
+sabiendo ya que el enfoque funciona.
+
+**Efecto sobre D7:** el alcance de la v1 no cambia —sigue siendo texto,
+ecuaciones y gráficas—, pero el **hito de medición** se adelanta a solo gráficas.
+Es un cambio de calendario, no de alcance.
 
 ---
 
@@ -100,6 +236,11 @@ cuesta nada.
 Consecuencia directa: el contrato entre extracción y composición es la pieza
 central del sistema. Debe cubrir texto, ecuaciones y series de datos, y admitir
 tipos nuevos sin romper a los consumidores existentes.
+
+> **Revisada por D30 (2026-07-22).** El alcance de la v1 no cambia. Lo que cambia
+> es el calendario: el hito que mide I1 e I2 se adelanta a solo gráficas, porque
+> son la parte que menos reconocimiento necesita y la que carga las dos
+> incógnitas.
 
 ### D9 — Se construye primero el motor, por línea de comandos
 
@@ -207,6 +348,12 @@ del otro lado no tiene humano y necesita saber de qué se puede fiar.
 > volver a la revisión completa.
 
 ### D14 — Confianza por consenso, para texto y ecuaciones
+
+> **Revocada por D29 (2026-07-22).** El consenso existía porque a un modelo ajeno
+> no se le pueden leer las probabilidades. Con motor propio (D28) se leen
+> directamente. Se conserva el razonamiento completo porque explica **qué
+> problema resuelve la confianza** y por qué no se le pregunta al modelo — eso
+> sigue vigente y es la premisa de D29.
 
 No se le pregunta al modelo qué tan seguro está: los modelos están mal
 calibrados y su "95% seguro" no corresponde con acertar 95 de cada 100.
@@ -421,6 +568,19 @@ reproducibilidad que exigen las mediciones de I1 e I2.
 > son **estimaciones con supuestos declarados**, no mediciones — la v1 existe en
 > buena parte para reemplazarlas por números reales.
 
+> ⚠ **Sección obsoleta desde el 2026-07-22.** D28 elimina la llamada a una API
+> externa, que era el supuesto sobre el que se construyó toda esta sección. D25,
+> D26 y D27 quedan **revocadas**; D24 queda **reabierta**. Se conserva completa
+> porque el razonamiento sigue siendo válido *si algún día se reevalúa contratar
+> un modelo*, y porque documenta cómo se llegó a la pregunta correcta.
+>
+> **Lo que queda vigente de aquí:** que el corte de decisión sobre hospedaje es el
+> **patrón de carga a ráfagas**, y que tener las dos etapas como contenedores hace
+> barato mudarse. Eso no dependía del modelo.
+>
+> **Lo que se invierte:** el costo dominante ya no es por token, es cómputo propio
+> —fijo y previsible—. La cuota deja de estar limitada por el costo marginal.
+
 ### Las dos fases de despliegue
 
 Vale la pena dejarlo sin ambigüedad, porque se presta a leerse al revés:
@@ -439,20 +599,53 @@ La única máquina que corre el motor sin servidor es la de desarrollo.
 No dos funciones del mismo proceso. Se comunican por el contrato de la Sección 5
 de la especificación.
 
-Tres razones independientes señalan el mismo corte, que es la señal de que el
-corte está bien puesto:
+> **Argumento reescrito el 2026-07-22 por D28.** La decisión sobrevive; sus
+> razones no. Se registran las dos versiones porque el cambio es instructivo: la
+> razón que parecía más fuerte —la política de red— desapareció, y el corte
+> siguió estando bien puesto por motivos que ya estaban ahí.
+
+**Lo que decía antes.** Que la extracción estaba ligada a entrada y salida
+—esperaba al modelo por la red y casi no usaba CPU— mientras la compilación
+estaba ligada a CPU; y que la extracción necesitaba salida a internet y la
+compilación no, y **un contenedor no puede tener red y no tenerla**.
+
+**Qué cambió.** Con el motor propio, la extracción ya no espera a nadie por la
+red: **calcula**. Y ya no necesita internet. Las dos razones se cayeron juntas.
+
+**Por qué el corte sigue bien puesto:**
 
 | Razón | Extracción | Compilación |
 |---|---|---|
-| **Perfil de recursos** | Ligada a entrada/salida: espera al modelo por la red, casi no usa CPU. Un núcleo lleva decenas de páginas a la vez | Ligada a CPU: Tectonic trabaja de verdad. Un núcleo, un trabajo |
-| **Política de red** (D19) | **Con** salida a internet — tiene que llamar al modelo | **Sin** red, ninguna |
+| **Forma del proceso** | Proceso largo y caliente, con los pesos residentes en memoria. Cargarlos por trabajo sería absurdo | Proceso efímero y desechable: uno por trabajo, muerto al terminar |
+| **Perfil de cómputo** | Inferencia. Puede querer vectorización agresiva o GPU (R6) | Tectonic sobre un núcleo. CPU corriente |
+| **Confinamiento** (D19) | Corre código nuestro sobre datos del usuario | **Ejecuta código generado.** Sistema de archivos de solo lectura, 60 s, 1 GB, muerto al excederse |
 | **Desacoplamiento** | Ya era la frontera del contrato | |
 
-Un contenedor no puede tener red y no tenerla. Y juntarlas obliga a dimensionar
-para lo peor de ambos perfiles: pagas CPU que la extracción no usa, o estrangulas
-la compilación limitando la concurrencia.
+La tercera es ahora la más importante. La compilación es la única etapa que
+**ejecuta** algo que no escribimos nosotros, y el confinamiento que eso exige
+—desechable, sin escritura, con temporizador— es exactamente lo contrario de lo
+que quiere un servicio de inferencia con pesos calientes. Juntarlas obliga a
+elegir entre no confinar la compilación o tirar los pesos en cada trabajo.
+
+**Efecto colateral bueno:** ahora **ningún** contenedor necesita salida a
+internet. La política de red pasa de ser un motivo de separación a ser uniforme y
+cerrada en todo el sistema, que es una postura de seguridad mejor.
 
 ### D24 — Cloud Run, con disparador de mudanza a VPS
+
+> **Reabierta el 2026-07-22 por D28.** La razón 3 —que Cloud Run diera el
+> aislamiento— **se fortalece**: sigue siendo cierta y ahora aplica a un
+> contenedor de compilación aún más cerrado. La razón 2 —escalar a cero para
+> ráfagas— **se debilita**: escalar a cero es una mala propiedad cuando hay pesos
+> que cargar en cada arranque en frío, y ese costo se paga en latencia, no en
+> factura. El disparador de ~120,000 páginas al mes se calculó sobre un costo por
+> página que ya no aplica y **no es válido**.
+>
+> Queda pendiente de la medición de R6: si la inferencia cabe en CPU, Cloud Run
+> sigue sirviendo con instancias mínimas mayores que cero; si exige GPU, el
+> cálculo cambia por completo y el VPS gana mucho antes. **No se decide hasta la
+> fase 1**, porque decidir ahora sería apostar sobre un número que no se ha
+> medido — el mismo criterio de D13.
 
 **Cloud Run** cuando llegue la plataforma, **con límite de gasto y tope de
 instancias configurados desde el primer despliegue**.
@@ -495,6 +688,11 @@ del VPS ya no es tan fijo como se suele suponer.
 
 ### D25 — El costo dominante es el modelo, no el hospedaje
 
+> **Revocada por D28 (2026-07-22).** Ya no hay costo por token. El costo
+> dominante pasa a ser cómputo propio: fijo, previsible y medible en la fase 1
+> (R6). La comparación de 500× a 2,700× contra el hospedaje deja de existir
+> porque desaparece el término grande.
+
 Este es el hallazgo que reordena la sección de precios.
 
 **Precios vigentes.** Cloud Run cobra por consumo medido, no por créditos ni
@@ -524,6 +722,16 @@ preocupación original era saturar el servidor; el servidor no es el problema.
 
 ### D26 — El plan gratuito se redimensiona a páginas al mes
 
+> **Revocada por D28 (2026-07-22).** El plan gratuito se redimensionó a 10–20
+> páginas al mes porque cada página costaba entre $0.05 y $0.27 en llamadas. Con
+> inferencia propia el costo marginal son segundos de cómputo, así que **el plan
+> gratuito puede volver a ser generoso** y la membresía deja de tener margen
+> delgado.
+>
+> **Lo que sí sobrevive:** que la cuota se mide en **páginas y no en documentos**.
+> Esa conclusión no dependía del costo por token — un documento sigue pudiendo
+> ser una hoja o cuarenta.
+
 La idea previa de **3 a 5 documentos diarios gratis** no es viable:
 
 | Plan gratuito propuesto | Costo mensual **por cada usuario gratuito** |
@@ -549,6 +757,16 @@ $15 deja margen delgado con Haiku y **pierde dinero con Sonnet 5**. El precio de
 plan y la elección del modelo son **la misma decisión**, no dos.
 
 ### D27 — Tres palancas de costo
+
+> **Revocada por D28 (2026-07-22).** Las tres palancas —API de lotes, consenso
+> selectivo y modelo por tipo de región— eran mitigaciones del costo por token.
+> Sin costo por token no hay nada que mitigar. El consenso selectivo cae además
+> por D29, que elimina el consenso entero.
+>
+> **Lo que sobrevive es la nota final:** la imagen normalizada se conserva junto
+> al resultado porque el contrato la necesita para las coordenadas de las dudas,
+> y **hay que definir una ventana de retención**. Eso sigue pendiente y no
+> dependía del modelo.
 
 | Palanca | Ahorro | Costo |
 |---|---|---|
@@ -610,20 +828,57 @@ pero se decide en el diseño de esa etapa, no después.
 **R2 — La confianza puede mentir.** Es I2. Si no se cumple su criterio de éxito,
 D8 se cae y hay que construir la revisión completa lado a lado.
 
-**R3 — El costo por documento.** El consenso de D14 triplica el gasto en la parte
-más cara. Si el costo por página resulta inviable para el precio que el mercado
-aguanta, hay que reducir el consenso, y eso afecta directamente a I2. R2 y R3
-están acoplados y se miden juntos.
+> **Reducido el 2026-07-22 por D29.** Con un modelo ajeno, la mala calibración era
+> un hecho que se sufría; con uno propio es un defecto que se corrige, porque las
+> probabilidades se leen y se calibran sobre nuestro conjunto de validación.
+> Sigue siendo un riesgo —hay que medirlo— pero deja de ser el que podía tumbar
+> el diseño.
+
+**R3 — El costo por documento.** ~~El consenso de D14 triplica el gasto en la
+parte más cara.~~
+
+> **Revocado el 2026-07-22 por D28.** Desaparece el costo por token, y con él el
+> acoplamiento entre R2 y R3 que obligaba a medirlos juntos. Se sustituye por R6,
+> que es un riesgo de cómputo, no de factura por llamada.
+
+**R4 — Licencia de los datos de entrenamiento.** **Bloqueante.** Este es un
+servicio de paga, y no todo conjunto de datos académico permite uso comercial. Un
+modelo entrenado con datos de cláusula no comercial es inservible para el
+producto, y el problema se descubre tarde y duele. Se resuelve en la fase 0,
+antes de escribir código de entrenamiento. Si no hay datos utilizables, se activa
+el plan de contingencia de D28.1.
+
+**R5 — Brecha de calidad en ecuaciones.** Un reconocedor propio de matemáticas
+manuscritas va a ser peor que un modelo de frontera, al menos al principio. Es el
+costo aceptado de D28.
+
+**No afecta a las gráficas** —ahí se compite contra visión clásica, no contra
+modelos— así que **no toca a I1**. Afecta a la fase 3, y probablemente obligue a
+renegociar los criterios de éxito para ecuaciones. Se anota ahora para que no sea
+una sorpresa.
+
+**R6 — Cómputo de inferencia.** Sustituye a R3. Si la inferencia cabe en CPU, el
+costo por página es despreciable y D24 se resuelve fácil. Si exige GPU, cambian el
+hospedaje, el precio del plan y el disparador de mudanza a la vez. Se despeja
+midiendo, en la fase 1.
 
 ---
 
 ## Aparcado
 
-**Precios y planes.** Parcialmente resuelto por D25–D27: ya sabemos qué cuesta
-caro (el modelo, no el hospedaje), que la cuota se mide en **páginas** y el orden
-de magnitud del plan gratuito. Falta fijar los números finales, y eso espera a
-que la v1 mida el costo real por página. La hipótesis original de 3–5 documentos
-diarios gratis quedó **descartada** por inviable.
+**Precios y planes.** Vuelve a estar abierto casi por completo. D28 revocó
+D25–D27, que era donde estaba el análisis.
+
+Lo único que sobrevive es que **la cuota se mide en páginas, no en documentos** —
+un documento puede ser una hoja o cuarenta, y eso no dependía del modelo. El
+orden de magnitud del plan gratuito, el precio de la membresía y el disparador de
+mudanza a VPS **hay que rehacerlos** cuando la fase 1 mida el costo real de
+cómputo por página (R6). La buena noticia es que ese número va a ser mucho más
+chico y mucho más previsible que el anterior.
+
+**Cómo se sirven los pesos.** Un proceso residente por trabajador, o un servicio
+de inferencia aparte al que llaman los trabajadores. Depende de R6 y no vale la
+pena decidirlo antes de medir.
 
 ## Casos de uso para después de la v1
 

@@ -79,6 +79,25 @@ siendo la principal: **extraer las gráficas como datos y dejar que pgfplots las
 dibuje** (D3). Es la que responde el filtro de sustitución por IA de forma más
 limpia, porque ahí LaTeX no es intercambiable por una llamada a un modelo.
 
+## Epílogo — 2026-07-22
+
+La objeción quedó resuelta de una forma que en su momento no se contempló.
+
+D3 respondía el filtro, pero por rodeo: el modelo seguía dentro del ciclo de
+ejecución —tres llamadas por región— y se argumentaba que el aporte propio estaba
+*alrededor* de él. Era un argumento legítimo, pero el filtro decía otra cosa:
+
+> Sobreviven los proyectos donde el modelo no puede estar presente mientras el
+> programa corre.
+
+**D28 lo cumple al pie de la letra: el reconocedor se construye.** No hay modelo
+ajeno en el ciclo, ni siquiera fuera de él.
+
+Nótese que esto **no** revive la respuesta 4. Aquella proponía reconocimiento
+local en el dispositivo del usuario, y sigue descartada por el pivote: el motor
+corre en **nuestro servidor**, no en la máquina del cliente. Lo que cambió no es
+dónde corre, es de quién es.
+
 ## Ideas hermanas que quedaron en el banco
 
 Comparten corpus con esta y podrían acabar siendo el mismo producto:
