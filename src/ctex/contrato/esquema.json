@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Contrato del motor C-tex, version 1.0",
+  "type": "object",
+  "required": ["version_contrato", "origen", "bloques", "dudas"],
+  "properties": {
+    "version_contrato": { "const": "1.0" },
+    "origen": {
+      "type": "object",
+      "required": ["archivo", "pagina"],
+      "properties": {
+        "archivo": { "type": "string" },
+        "pagina": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "bloques": { "type": "array", "items": { "$ref": "#/$defs/bloque" } },
+    "dudas": { "type": "array", "items": { "$ref": "#/$defs/duda" } }
+  },
+  "$defs": {
+    "region": {
+      "type": "object",
+      "required": ["x", "y", "ancho", "alto"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "ancho": { "type": "number", "exclusiveMinimum": 0 },
+        "alto": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "bloque": {
+      "type": "object",
+      "required": ["id", "tipo", "region", "confianza", "contenido"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "tipo": { "type": "string", "minLength": 1 },
+        "region": { "$ref": "#/$defs/region" },
+        "confianza": { "type": "number", "minimum": 0, "maximum": 1 },
+        "contenido": { "type": "object" }
+      }
+    },
+    "duda": {
+      "type": "object",
+      "required": ["id", "bloque_id", "tipo", "region", "descripcion"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "bloque_id": { "type": "string", "minLength": 1 },
+        "tipo": {
+          "enum": [
+            "simbolo_ambiguo", "punto_incierto", "escala_incierta",
+            "texto_ilegible", "region_dudosa"
+          ]
+        },
+        "region": { "$ref": "#/$defs/region" },
+        "descripcion": { "type": "string" },
+        "alternativas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["valor", "probabilidad"],
+            "properties": {
+              "valor": { "type": "string" },
+              "probabilidad": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

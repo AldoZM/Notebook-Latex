@@ -1,0 +1,42 @@
+{
+  "version_contrato": "1.0",
+  "origen": { "archivo": "hoja_03.jpg", "pagina": 1 },
+  "bloques": [
+    {
+      "id": "b1",
+      "tipo": "titulo",
+      "region": { "x": 120, "y": 80, "ancho": 900, "alto": 60 },
+      "confianza": 0.98,
+      "contenido": { "nivel": 1, "texto": "Series de Fourier" }
+    },
+    {
+      "id": "b2",
+      "tipo": "ecuacion",
+      "region": { "x": 200, "y": 340, "ancho": 700, "alto": 120 },
+      "confianza": 0.71,
+      "contenido": {
+        "latex": "f(x)=\\sum_{n=1}^{6} a_n \\cos(nx)",
+        "numerada": true
+      }
+    },
+    {
+      "id": "b3",
+      "tipo": "grafica",
+      "region": { "x": 150, "y": 600, "ancho": 800, "alto": 640 },
+      "confianza": 0.84,
+      "contenido": {
+        "tipo_grafica": "lineas",
+        "titulo": "Convergencia",
+        "ejes": {
+          "x": { "min": 0, "max": 10, "etiqueta": "n", "escala": "lineal" },
+          "y": { "min": -1, "max": 1, "etiqueta": "error", "escala": "lineal" }
+        },
+        "series": [
+          { "etiqueta": "parcial",
+            "puntos": [[0,0.9],[2,0.42],[4,0.21],[6,0.1]] }
+        ]
+      }
+    }
+  ],
+  "dudas": []
+}
