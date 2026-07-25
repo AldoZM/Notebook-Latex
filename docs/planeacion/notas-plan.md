@@ -47,6 +47,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D28 | **El motor se construye, no se contrata** | |
 | D29 | La confianza se lee del decodificador y se calibra | |
 | D30 | Orden de construcción: las gráficas primero | |
+| D31 | El campo `latex` es la excepción del contrato; la lista blanca es su compuerta | |
 
 ---
 
@@ -195,6 +196,39 @@ sabiendo ya que el enfoque funciona.
 **Efecto sobre D7:** el alcance de la v1 no cambia —sigue siendo texto,
 ecuaciones y gráficas—, pero el **hito de medición** se adelanta a solo gráficas.
 Es un cambio de calendario, no de alcance.
+
+### D31 — El contrato sí tiene un campo donde cabe un comando: el `latex` de las ecuaciones
+
+**Corrección a la Sección 9.** La especificación afirmaba que «el contrato no
+tiene ningún campo donde quepa un comando», y esa frase es falsa: el bloque
+`ecuacion` lleva un campo `latex`, y ahí dentro viajan `\sum`, `\cos` y
+cualquier otra cosa que el reconocedor haya transcrito. Es exactamente un campo
+donde cabe un comando.
+
+La afirmación era demasiado fuerte, pero **el sistema no está mal diseñado** —lo
+que estaba mal era el argumento. La defensa real ya está en la misma tabla de la
+Sección 9: **lista blanca de comandos permitidos**. La frase correcta es esta:
+
+> El contrato tiene **un solo** campo donde cabe LaTeX, y ese campo pasa por la
+> lista blanca antes de tocar el `.tex`. Todo lo demás es texto que se escapa.
+
+Por qué importa la distinción: si uno cree que el contrato es seguro *por su
+forma*, la lista blanca parece una precaución opcional y el día que estorbe se
+va a relajar. Sabiendo que hay un canal abierto y que la lista blanca **es** la
+compuerta de ese canal, la pieza deja de ser negociable.
+
+Consecuencias concretas:
+
+| | |
+|---|---|
+| **Superficie de ataque** | Un campo, no cero. Se enumera y se prueba entero |
+| **La lista blanca es obligatoria** | No es defensa en profundidad: es *la* defensa de ese campo |
+| **Qué se permite** | Enumeración explícita de comandos de matemáticas. Lo que no está en la lista no pasa, aunque sea inofensivo |
+| **Qué pasa con lo rechazado** | Degrada a texto literal marcado (D18). El motor sigue entregando un PDF |
+| **Dónde vive** | `composicion/escapado.py`, probado solo. Tarea T3 del plan de la caminata esquelética |
+
+Esto refuerza D19, no lo revoca. Y no cambia nada del código previsto: la T3 ya
+implementaba la lista blanca. Lo que cambia es el motivo por el que existe.
 
 ---
 

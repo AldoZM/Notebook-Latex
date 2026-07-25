@@ -561,18 +561,35 @@ Defensas, todas obligatorias desde la v1:
 > Aun así **la lista blanca y la construcción del `.tex` desde el contrato se
 > mantienen sin cambios**, por dos razones: el reconocedor sí puede transcribir
 > `\write18` como texto literal si el usuario lo escribió a mano, y la defensa es
-> barata mientras que descubrir que era necesaria es caro. Es defensa en
-> profundidad, y el argumento de abajo —que el contrato no tiene campo donde
-> quepa un comando— sigue siendo la línea que de verdad sostiene el sistema.
+> barata mientras que descubrir que era necesaria es caro.
 
 La última es la más importante y la más fácil de olvidar: **la composición no
 copia y pega lo que dijo el modelo.** El modelo entrega datos que van al
 contrato de la sección 5, y la composición construye el LaTeX a partir de ese
-contrato usando plantillas propias. Un `\write18` que venga del modelo no tiene
-por dónde llegar al `.tex`, porque **el contrato no tiene ningún campo donde
-quepa un comando**.
+contrato usando plantillas propias.
 
-El contrato no solo desacopla las etapas: es la frontera de seguridad.
+### El único campo por donde puede entrar un comando
+
+> **Corrección del 2026-07-22 (D31).** Este documento decía que «el contrato no
+> tiene ningún campo donde quepa un comando». Es falso: el bloque `ecuacion`
+> lleva un campo `latex`, y ahí viajan `\sum` y `\cos`.
+
+El contrato tiene **exactamente un** campo por donde puede entrar LaTeX, y es el
+`latex` del bloque `ecuacion`. Todos los demás campos son datos: texto que se
+escapa carácter por carácter, o números que se formatean.
+
+Ese campo pasa por la **lista blanca de comandos permitidos** antes de tocar el
+`.tex`:
+
+- La lista es una **enumeración explícita** de comandos de matemáticas. Lo que no
+  está en la lista no pasa, aunque parezca inofensivo.
+- Lo rechazado **degrada a texto literal marcado**, no revienta la compilación
+  (sección 8, D18).
+- Vive en `composicion/escapado.py` y se prueba aislado, con corpus de ataques.
+
+Por eso la lista blanca **no es una precaución opcional**: es la compuerta de ese
+canal. La frontera de seguridad no es la forma del contrato, es el contrato
+**más** la lista blanca.
 
 ## 10. Manejo de errores
 
