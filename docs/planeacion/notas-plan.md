@@ -47,7 +47,8 @@ tenga que volver a recorrer lo ya recorrido.
 | D28 | **El motor se construye, no se contrata** | |
 | D29 | La confianza se lee del decodificador y se calibra | |
 | D30 | Orden de construcción: las gráficas primero | |
-| D31 | El campo `latex` es la excepción del contrato; la lista blanca es su compuerta | |
+| D31 | El campo `latex` es la excepción del contrato; la lista blanca es su compuerta | corregida por D32 |
+| D32 | La lista blanca de comandos, sola, es evadible con la notación `^^` | |
 
 ---
 
@@ -229,6 +230,56 @@ Consecuencias concretas:
 
 Esto refuerza D19, no lo revoca. Y no cambia nada del código previsto: la T3 ya
 implementaba la lista blanca. Lo que cambia es el motivo por el que existe.
+
+### D32 — La lista blanca de comandos, sola, es evadible
+
+**Corrige a D31, que era demasiado optimista.** D31 dijo que la lista blanca es
+la compuerta del campo `latex`. Cierto, pero la lista blanca busca `\[a-zA-Z]+`,
+y **hay una forma de invocar un comando sin escribir su nombre**.
+
+TeX tiene la notación `^^`, que codifica un carácter por su valor: `^^77` es la
+letra `w`. La sustitución ocurre en el analizador léxico, **antes** de que exista
+el nombre del comando. Entonces:
+
+```
+\^^77rite18{ls}
+```
+
+Para el motor de TeX eso es `\write18{ls}`. Para una búsqueda de comandos
+alfabéticos no hay ningún comando ahí: después de la barra viene un acento.
+
+**No es teoría, se comprobó compilando.** Un documento con
+`\^^73ection{Esto deberia ser una seccion}` produjo un PDF con una sección
+numerada de verdad, con Tectonic y `--untrusted`. La evasión funciona.
+
+**Qué tan grave era.** El daño estaba contenido por las otras defensas —
+`--untrusted` mantiene apagado el shell-escape, así que `\write18` no habría
+ejecutado nada, y el límite de 60 s mata una bomba de expansión—, pero la
+compuerta que D31 acababa de declarar obligatoria se saltaba entera. Defensa en
+profundidad significa que la falla de una capa no es catástrofe; no significa que
+se pueda dejar rota.
+
+**La corrección:** se prohíben **dos acentos seguidos** en el campo `latex`.
+
+| | |
+|---|---|
+| **Por qué se puede prohibir** | En matemáticas legítimas nunca aparecen dos seguidos: `x^2` y `x^{n+1}` llevan uno. El superíndice sigue funcionando igual |
+| **Por qué va aparte de la lista blanca** | `^^` no es un comando prohibido: es la forma de esconder cualquiera de ellos. Son dos defensas distintas y se prueban por separado |
+| **Dónde vive** | `notacion_peligrosa()` en `escapado.py`; `motivos_de_rechazo()` une las dos y es lo que consume el compositor de ecuaciones |
+| **Qué le pasa a lo rechazado** | Degrada a texto literal marcado, igual que todo lo demás (D18) |
+
+También cubre `^^^^0077`, la variante de cuatro dígitos de XeTeX y LuaTeX, que
+empieza por el mismo par.
+
+**La lección, que vale más que el parche:** una lista blanca solo es tan buena
+como su analizador. Filtrar por nombre de comando presupone que el nombre está
+escrito, y en un lenguaje de programación completo esa suposición se rompe. Al
+escribir el corpus de ataques hay que preguntarse no solo *qué comandos son
+peligrosos*, sino *de cuántas formas se puede escribir el mismo comando*.
+
+Los tres ataques —`\^^77rite18`, `\^^69nput` y la variante de cuatro dígitos—
+quedaron en el corpus de `tests/test_seguridad.py`, y hay una prueba que afirma
+que ningún `^^` sobrevive al `.tex`.
 
 ---
 

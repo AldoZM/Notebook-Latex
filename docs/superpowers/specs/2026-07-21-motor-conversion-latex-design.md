@@ -583,9 +583,19 @@ Ese campo pasa por la **lista blanca de comandos permitidos** antes de tocar el
 
 - La lista es una **enumeración explícita** de comandos de matemáticas. Lo que no
   está en la lista no pasa, aunque parezca inofensivo.
+- **Y se prohíben dos acentos seguidos** (`^^`). La notación `^^` de TeX codifica
+  un carácter por su valor —`^^77` es `w`— y lo sustituye antes de que exista el
+  nombre del comando, así que `\^^77rite18` **es** `\write18` para el motor y no
+  es ningún comando para la lista blanca. Comprobado compilando (D32). El
+  superíndice normal, con un solo acento, sigue funcionando.
 - Lo rechazado **degrada a texto literal marcado**, no revienta la compilación
   (sección 8, D18).
 - Vive en `composicion/escapado.py` y se prueba aislado, con corpus de ataques.
+
+Las dos defensas van separadas a propósito: la lista blanca dice **qué comandos**
+se permiten, y la prohibición de `^^` cierra **la forma de escribir un comando
+sin su nombre**. Una lista blanca solo es tan buena como el analizador que la
+alimenta.
 
 Por eso la lista blanca **no es una precaución opcional**: es la compuerta de ese
 canal. La frontera de seguridad no es la forma del contrato, es el contrato

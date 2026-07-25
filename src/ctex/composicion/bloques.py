@@ -4,7 +4,7 @@ Cada funcion recibe el `contenido` del bloque y devuelve un fragmento de LaTeX.
 Ninguna copia texto del contrato sin pasarlo por `escapar`.
 """
 
-from ctex.composicion.escapado import comandos_no_permitidos, escapar
+from ctex.composicion.escapado import escapar, motivos_de_rechazo
 
 _NIVELES = ["section", "subsection", "subsubsection"]
 
@@ -27,7 +27,7 @@ def degradar(texto_original: str) -> str:
 def componer_ecuacion(contenido: dict) -> str:
     latex = contenido["latex"]
 
-    prohibidos = comandos_no_permitidos(latex)
+    prohibidos = motivos_de_rechazo(latex)
     if prohibidos:
         # No se compone lo que no se entiende. El bloque se degrada y el resto
         # del documento sale bien.
