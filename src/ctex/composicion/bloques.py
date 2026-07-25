@@ -35,3 +35,54 @@ def componer_ecuacion(contenido: dict) -> str:
 
     entorno = "equation" if contenido.get("numerada", True) else "equation*"
     return f"\\begin{{{entorno}}}\n{latex}\n\\end{{{entorno}}}"
+
+
+def _formatear(valor: float) -> str:
+    """Numero sin ceros de relleno: 0.9 y no 0.900000."""
+    if isinstance(valor, int) or float(valor).is_integer():
+        return str(int(valor))
+    return f"{valor:g}"
+
+
+def _opciones_de_eje(eje: dict, nombre: str) -> list[str]:
+    opciones = [
+        f"{nombre}min={_formatear(eje['min'])}",
+        f"{nombre}max={_formatear(eje['max'])}",
+        f"{nombre}label={{{escapar(eje.get('etiqueta', ''))}}}",
+    ]
+    if eje.get("escala") == "log":
+        opciones.append(f"{nombre}mode=log")
+    return opciones
+
+
+def componer_grafica(contenido: dict) -> str:
+    ejes = contenido["ejes"]
+    opciones = _opciones_de_eje(ejes["x"], "x") + _opciones_de_eje(ejes["y"], "y")
+    opciones.append("grid=both")
+    opciones.append("legend pos=north east")
+
+    trazos = []
+    for serie in contenido["series"]:
+        puntos = " ".join(
+            f"({_formatear(x)},{_formatear(y)})" for x, y in serie["puntos"]
+        )
+        trazos.append(f"    \\addplot coordinates {{{puntos}}};")
+        trazos.append(f"    \\addlegendentry{{{escapar(serie.get('etiqueta', ''))}}}")
+
+    cuerpo = "\n".join(trazos)
+    opciones_texto = ",\n      ".join(opciones)
+    titulo = escapar(contenido.get("titulo", ""))
+
+    return (
+        "\\begin{figure}[htbp]\n"
+        "  \\centering\n"
+        "  \\begin{tikzpicture}\n"
+        "    \\begin{axis}[\n"
+        f"      {opciones_texto},\n"
+        "    ]\n"
+        f"{cuerpo}\n"
+        "    \\end{axis}\n"
+        "  \\end{tikzpicture}\n"
+        f"  \\caption{{{titulo}}}\n"
+        "\\end{figure}"
+    )

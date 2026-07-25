@@ -87,3 +87,83 @@ def test_una_ecuacion_degradada_no_deja_pasar_el_comando():
 def test_una_ecuacion_con_input_se_degrada():
     salida = componer_ecuacion({"latex": r"\input{/etc/passwd}"})
     assert r"\ctexdegradado" in salida
+
+
+from ctex.composicion.bloques import componer_grafica
+
+GRAFICA_EJEMPLO = {
+    "tipo_grafica": "lineas",
+    "titulo": "Convergencia",
+    "ejes": {
+        "x": {"min": 0, "max": 10, "etiqueta": "n", "escala": "lineal"},
+        "y": {"min": -1, "max": 1, "etiqueta": "error", "escala": "lineal"},
+    },
+    "series": [
+        {"etiqueta": "parcial", "puntos": [[0, 0.9], [2, 0.42], [4, 0.21], [6, 0.1]]}
+    ],
+}
+
+
+def test_una_grafica_produce_un_entorno_axis():
+    salida = componer_grafica(GRAFICA_EJEMPLO)
+    assert r"\begin{tikzpicture}" in salida
+    assert r"\begin{axis}" in salida
+    assert r"\end{tikzpicture}" in salida
+
+
+def test_los_limites_de_los_ejes_salen_del_contrato():
+    salida = componer_grafica(GRAFICA_EJEMPLO)
+    assert "xmin=0" in salida
+    assert "xmax=10" in salida
+    assert "ymin=-1" in salida
+    assert "ymax=1" in salida
+
+
+def test_los_puntos_salen_como_coordenadas():
+    salida = componer_grafica(GRAFICA_EJEMPLO)
+    assert "(0,0.9)" in salida
+    assert "(6,0.1)" in salida
+
+
+def test_la_grafica_no_contiene_ninguna_imagen_incrustada():
+    # D10: matplotlib no aparece en la ruta de salida. Lo que sale son numeros.
+    salida = componer_grafica(GRAFICA_EJEMPLO)
+    assert r"\includegraphics" not in salida
+
+
+def test_una_escala_logaritmica_se_traduce():
+    contenido = {
+        **GRAFICA_EJEMPLO,
+        "ejes": {
+            "x": {"min": 1, "max": 100, "etiqueta": "n", "escala": "log"},
+            "y": {"min": -1, "max": 1, "etiqueta": "error", "escala": "lineal"},
+        },
+    }
+    salida = componer_grafica(contenido)
+    assert "xmode=log" in salida
+
+
+def test_las_etiquetas_van_escapadas():
+    contenido = {
+        **GRAFICA_EJEMPLO,
+        "titulo": "Costos & margenes",
+        "ejes": {
+            "x": {"min": 0, "max": 10, "etiqueta": "100%", "escala": "lineal"},
+            "y": {"min": -1, "max": 1, "etiqueta": "error", "escala": "lineal"},
+        },
+    }
+    salida = componer_grafica(contenido)
+    assert r"Costos \& margenes" in salida
+    assert r"100\%" in salida
+
+
+def test_varias_series_producen_varios_addplot():
+    contenido = {
+        **GRAFICA_EJEMPLO,
+        "series": [
+            {"etiqueta": "a", "puntos": [[0, 1], [1, 2]]},
+            {"etiqueta": "b", "puntos": [[0, 3], [1, 4]]},
+        ],
+    }
+    salida = componer_grafica(contenido)
+    assert salida.count(r"\addplot") == 2
