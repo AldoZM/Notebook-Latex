@@ -43,3 +43,47 @@ def test_envolver_produce_un_documento_completo():
 def test_el_preambulo_carga_pgfplots():
     salida = envolver("")
     assert r"\usepackage{pgfplots}" in salida
+
+
+from ctex.composicion.bloques import componer_ecuacion
+
+
+def test_una_ecuacion_numerada_usa_el_entorno_equation():
+    salida = componer_ecuacion({
+        "latex": r"f(x)=\sum_{n=1}^{6} a_n \cos(nx)",
+        "numerada": True,
+    })
+    assert salida == (
+        "\\begin{equation}\n"
+        r"f(x)=\sum_{n=1}^{6} a_n \cos(nx)"
+        "\n\\end{equation}"
+    )
+
+
+def test_una_ecuacion_no_numerada_usa_equation_estrella():
+    salida = componer_ecuacion({"latex": "a+b=c", "numerada": False})
+    assert salida.startswith(r"\begin{equation*}")
+    assert salida.endswith(r"\end{equation*}")
+
+
+def test_una_ecuacion_sin_el_campo_numerada_se_numera():
+    salida = componer_ecuacion({"latex": "a+b=c"})
+    assert r"\begin{equation}" in salida
+
+
+def test_una_ecuacion_con_comando_prohibido_se_degrada():
+    # D18: el motor siempre entrega un PDF. Un bloque que no se puede componer
+    # se inserta como texto literal, marcado visiblemente.
+    salida = componer_ecuacion({"latex": r"\write18{rm -rf /}", "numerada": True})
+    assert r"\ctexdegradado" in salida
+    assert r"\begin{equation}" not in salida
+
+
+def test_una_ecuacion_degradada_no_deja_pasar_el_comando():
+    salida = componer_ecuacion({"latex": r"\write18{ls}", "numerada": True})
+    assert r"\write18" not in salida
+
+
+def test_una_ecuacion_con_input_se_degrada():
+    salida = componer_ecuacion({"latex": r"\input{/etc/passwd}"})
+    assert r"\ctexdegradado" in salida
