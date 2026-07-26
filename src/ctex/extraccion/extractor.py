@@ -6,9 +6,8 @@ Devuelve tambien la traza con los intermedios (D43).
 
 from pathlib import Path
 
-import cv2
-
 from ctex.extraccion.escala import fijar_escala
+from ctex.extraccion.imagen import cargar
 from ctex.extraccion.marco import detectar_caja
 from ctex.extraccion.rastreo import barrer
 from ctex.extraccion.remuestreo import remuestrear
@@ -28,12 +27,7 @@ def extraer(
 ) -> tuple[dict, Traza]:
     """De un recorte de grafica a un documento del contrato v1.0."""
     ruta_imagen = Path(ruta_imagen)
-    if not ruta_imagen.exists():
-        raise FileNotFoundError(f"No existe la imagen: {ruta_imagen}")
-
-    imagen = cv2.imread(str(ruta_imagen), cv2.IMREAD_GRAYSCALE)
-    if imagen is None:
-        raise FileNotFoundError(f"No se pudo leer como imagen: {ruta_imagen}")
+    imagen = cargar(ruta_imagen)
 
     traza = Traza()
 

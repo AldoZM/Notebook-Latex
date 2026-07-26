@@ -9,7 +9,11 @@ from ctex.composicion.bloques import componer_grafica
 from ctex.contrato.validador import validar
 from ctex.material.contrato import definicion_a_contrato
 from ctex.material.definicion import FAMILIAS, generar_definicion
-from ctex.material.plantilla import envolver_standalone, extraer_tikzpicture
+from ctex.material.plantilla import (
+    envolver_standalone,
+    extraer_tikzpicture,
+    quitar_leyenda,
+)
 from ctex.material.rasterizador import rasterizar_pdf
 
 
@@ -42,7 +46,7 @@ def generar_corpus(
 
         bloque_grafica = doc_contrato["bloques"][0]["contenido"]
         fragmento = componer_grafica(bloque_grafica)
-        tikz = extraer_tikzpicture(fragmento)
+        tikz = quitar_leyenda(extraer_tikzpicture(fragmento))
         tex = envolver_standalone(tikz)
 
         with tempfile.TemporaryDirectory() as dir_temp:

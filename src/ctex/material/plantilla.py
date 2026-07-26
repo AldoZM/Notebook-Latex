@@ -43,6 +43,30 @@ def extraer_tikzpicture(fragmento: str) -> str:
     return fragmento[inicio:fin]
 
 
+def quitar_leyenda(cuerpo_tikz: str) -> str:
+    """Quita las entradas de leyenda del fragmento.
+
+    pgfplots dibuja el recuadro de leyenda DENTRO de la caja de los ejes, y ahi
+    el extractor no lo distingue de la curva: su tinta entra al centroide de las
+    columnas que cruza y jala el rastreo hacia arriba. Medido sobre el nivel -1,
+    ese jalon producia errores de hasta el 20% del rango en la mitad derecha,
+    con la mediana en 0.3%.
+
+    Se quita del MATERIAL y no se le ensena al extractor a ignorarla porque la
+    leyenda es un artefacto nuestro: la emite el compositor para el producto. El
+    dominio de la fase 1 son graficas de cuaderno de una sola curva (D36), que
+    no llevan recuadro de leyenda.
+
+    No toca el compositor: opera sobre el fragmento que este ya devolvio.
+    """
+    lineas = [
+        linea
+        for linea in cuerpo_tikz.splitlines()
+        if "\\addlegendentry" not in linea
+    ]
+    return "\n".join(lineas)
+
+
 def envolver_standalone(cuerpo_tikz: str) -> str:
     """Envuelve un fragmento tikzpicture dentro del documento standalone.
 
