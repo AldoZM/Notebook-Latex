@@ -66,6 +66,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D44 | La confianza de la fase 1 es un marcador de posición declarado | |
 | D45 | Los huecos del barrido: cerrar, rellenar marcado, no extrapolar | precisa D38 |
 | D46 | La forma del documento que emite el extractor | deja una deuda |
+| D47 | **El extractor no degrada: para, o entrega algo confiable** | excepción a D18 |
 
 ---
 
@@ -762,6 +763,55 @@ ligera, y un campo de más en la v1 cuesta menos que un esquema inestable. Pero
 queda registrado porque **es el primer lugar donde la fase 1 le miente al esquema
 por falta de contexto**, y cuando llegue la segmentación —que sí sabe de qué
 página salió cada recorte— habrá que resolverlo de verdad en vez de descubrirlo.
+
+### D47 — El extractor no degrada: para, o entrega algo confiable
+
+**Es una excepción deliberada a D18**, que dice que el motor siempre entrega un
+PDF degradando lo que no pudo componer.
+
+D18 funciona porque la degradación es **visible**: el usuario ve el recuadro rojo
+y sabe que ahí falta algo. En el extractor no hay dónde poner ese recuadro. Si el
+rastreo sale mal y aun así se emite una serie, lo que sale es una gráfica
+plausible con datos equivocados — el error catastrófico que la Sección 6 ya
+describió: *"la curva conserva su forma y la gráfica se ve perfectamente
+plausible. No hay nada en el PDF que delate el error."*
+
+> **El extractor prefiere no entregar nada antes que entregar algo plausible y
+> falso.**
+
+Es la misma asimetría de consecuencia que justificó D13, no un capricho: que
+sobre una gráfica sin extraer cuesta volver a intentar; que pase una gráfica mal
+extraída cuesta que el error viaje hasta el cliente sin que nada lo delate.
+
+**Dónde para:**
+
+| Paso | Si falla | Sale con |
+|---|---|---|
+| 1 marco | no aparecen dos rectas | 3 |
+| 1b rectificación | ángulo absurdo (> 15°) | 3 |
+| 3 escala | rango invertido o cero | 2 |
+| 4 tinta | no queda nada | 4 |
+| 5 rastreo | menos del 30% de columnas con valor | 4 |
+| 7 remuestreo | quedan menos de 5 puntos | 4 |
+
+**El 30% es el único número inventado de esa tabla y se marca como tal.** Es una
+conjetura hasta que el nivel −1 diga cuánto barre una gráfica limpia; si una
+gráfica buena barre el 95% de las columnas, el umbral está mal puesto y hay que
+subirlo. Se calibra con datos, no se defiende.
+
+**Lo único que degrada** son los huecos rellenos de D45, y no es una excepción a
+lo anterior: un relleno marcado **es verificable** —queda la región para ir a
+mirarla— mientras que una curva mal rastreada no deja rastro de su error.
+
+**Los saltos se marcan como duda.** Ninguna comprobación de la tabla atrapa el
+fallo de C3: el rastreo termina, barre todas las columnas, entrega puntos, y unos
+cuantos están mal porque el centroide cayó en medio de un tramo casi vertical.
+Sale con código 0 y se ve perfecto. La señal existe —una columna con mucha más
+tinta que sus vecinas— y se emite `punto_incierto` cuando aparece.
+
+Eso convierte a C3 de **falla silenciosa** en **falla anunciada**, que para el
+veredicto de I1a es una diferencia enorme: un error que generó duda es un error
+manejable; uno que no, es de los únicos inaceptables según la Sección 11.
 
 ---
 
