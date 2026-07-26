@@ -62,6 +62,8 @@ tenga que volver a recorrer lo ya recorrido.
 | D40 | La rectificación del recorte es del extractor | F7, parte la etapa 1 |
 | D41 | El corpus del nivel 1: 24 gráficas, seis condiciones por cuatro | |
 | D42 | La plantilla del material es una excepción acotada a D16 | acota D16 |
+| D43 | El extractor devuelve contrato **y traza** | |
+| D44 | La confianza de la fase 1 es un marcador de posición declarado | |
 
 ---
 
@@ -627,6 +629,48 @@ incumplió en silencio. Lo segundo es lo caro: si una decisión resultó ser men
 el lector deja de confiar en el registro entero. Es la misma lección que dejaron
 D34–D38 al vivir sueltas en la nota de continuidad — el costo no se paga cuando se
 omite, se paga cuando alguien vuelve.
+
+### D43 — El extractor devuelve contrato y traza
+
+`extraer()` no devuelve solo el documento del contrato: devuelve también una
+**traza** con los resultados intermedios de los siete pasos —las dos rectas del
+marco, la transformación de escala, el barrido crudo antes de remuestrear—.
+
+**Dos motivos, y ninguno es depuración cómoda.**
+
+El primero es que un error de rastreo es *local* (Sección 6): un punto mal de
+veinte. Sin traza, saber en cuál de los siete pasos se torció obliga a volver a
+ejecutar con impresiones intercaladas, y eso no escala a 24 gráficas por corrida.
+
+El segundo es D39: `ctex-medir` tiene que producir el error **por condición** de
+D41, y para explicar por qué C3 falla necesita el barrido crudo, no el
+remuestreo. Si la traza no existe, la suite de medición tendría que reimplementar
+la tubería para verla por dentro.
+
+**Qué lleva y qué no.** Los datos baratos siempre: rectas, transformación,
+puntos crudos, puntos remuestreados. Las **imágenes intermedias solo si se
+piden**, porque una máscara de 4000×3000 pesa lo mismo que la entrada y
+guardarlas por omisión convertiría una corrida de 24 gráficas en cientos de
+megabytes.
+
+### D44 — La confianza de la fase 1 es un marcador de posición declarado
+
+El contrato **exige** `confianza` entre 0 y 1 en cada bloque, pero el aparato de
+confianza es la fase 2 (D15, D30). La fase 1 tiene que poner algo válido sin
+tenerlo construido.
+
+**Pone un valor fijo, documentado como marcador de posición**, y no una
+confianza geométrica improvisada.
+
+El motivo es el argumento de D15 llevado a su conclusión: **una confianza mal
+construida es peor que ninguna, porque se ve exactamente igual que una buena.**
+Un número inventado a partir de qué tan bien ajustaron las rectas parecería
+significar algo, se colaría a las mediciones de I2 y contaminaría la calibración
+de la fase 2 con una línea base falsa. Un valor fijo no engaña a nadie: quien lo
+vea sabe de inmediato que ahí todavía no hay medición.
+
+Cuando llegue la fase 2, ese valor se reemplaza por la confianza geométrica de
+D15 y esta decisión queda revocada por la que la construya.
 
 ---
 
