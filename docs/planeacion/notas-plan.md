@@ -59,6 +59,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D38 | **Rastreo: barrido por columnas, sin C++** | F5, revisa D11 |
 | D39 | La fase 1 se entrega como dos comandos encadenables | F6 |
 | D40 | La rectificación del recorte es del extractor | F7, parte la etapa 1 |
+| D41 | El corpus del nivel 1: 24 gráficas, seis condiciones por cuatro | |
 
 ---
 
@@ -374,6 +375,7 @@ porque la nota de continuidad las nombra con la letra F.
 | D38 | F5 | Barrido por columnas |
 | D39 | F6 | Dos comandos encadenables |
 | D40 | F7 | La rectificación es del extractor |
+| D41 | — | El corpus del nivel 1 |
 
 ### D34 — La escala se teclea; el clasificador de dígitos no entra en la fase 1
 
@@ -452,10 +454,7 @@ por eje, donde el 2% del rango son 2 mm:
 La mano no es el problema: las tres primeras suman menos del 0.5%. **La
 perspectiva sí**, y de ahí sale D40.
 
-**Queda abierto:** cuántas gráficas tiene el corpus del nivel 1, y con qué
-condiciones. La propuesta sobre la mesa es estratificarlo por condición —incluir
-a propósito los dos casos donde D38 predice la falla— y reportar el error por
-condición, no solo el global. Sin eso la medición sale optimista.
+El tamaño y la composición del corpus los fija **D41**.
 
 ### D36 — Alcance de la fase 1: una sola curva
 
@@ -553,6 +552,46 @@ plataforma, un módulo del motor ya está del lado correcto. Y tampoco es
 implementar la normalización dos veces: son dos operaciones a escalas distintas,
 una sobre la hoja con el papel como referencia y otra sobre el recorte con los
 ejes, que es más precisa justo donde el presupuesto de error aprieta.
+
+### D41 — El corpus del nivel 1: 24 gráficas, seis condiciones por cuatro
+
+**Se diseña, no se junta.** Dibujar 24 gráficas al azar produciría un número
+global que promedia casos fáciles con casos imposibles y no dice nada
+accionable. El corpus se estratifica por condición y **el error se reporta por
+condición**, no solo agregado.
+
+| | Condición | Qué aísla |
+|---|---|---|
+| C1 | Suave, sin rejilla | El caso fácil. Si aquí falla, se acabó |
+| C2 | Suave, con rejilla densa | El borrado de rejilla del paso 4 |
+| C3 | Con tramo casi vertical | **D38 predice falla parcial** |
+| C4 | Que se dobla hacia atrás | **D38 dice: sin arreglo con este método** |
+| C5 | Trazo grueso o tembloroso | El centroide de la tinta |
+| C6 | Rango asimétrico, con negativos | La transformación del paso 6 |
+
+**Cuatro por condición y no dos.** Con n=2, una gráfica que salga con 8% de
+error no permite distinguir si el método falla o si ese dibujo salió chueco. Con
+n=4 la pregunta al menos se puede plantear.
+
+**Y no cuarenta.** Son días de dibujo a mano, y el criterio "ningún punto por
+encima del 5%" se endurece solo conforme crece el denominador: más material
+puede reprobar I1a por razones que no tienen que ver con si el método sirve.
+
+**C4 se mide pero no cuenta para el veredicto de I1a.** Una curva que se dobla
+hacia atrás no es una función: hay dos valores de y para la misma x, y un
+barrido por columnas no puede representarla ni en principio. D38 ya lo dice.
+Meterla al criterio de aprobado/reprobado garantizaría reprobar por una
+limitación conocida y aceptada de antemano, que es distinto de un fallo.
+
+> **El veredicto de I1a se calcula sobre C1, C2, C3, C5 y C6** —20 gráficas,
+> ~200 puntos de verdad—. C4 se dibuja, se mide y se reporta **aparte**, como la
+> frontera documentada del método.
+
+Esto no es indulgencia con el resultado: es lo contrario. Un corpus sin C4
+dejaría la frontera sin medir y alguien la descubriría más tarde con una gráfica
+de cliente. Medirla y excluirla del veredicto **la vuelve un número conocido en
+vez de una sorpresa**. Si algún día C4 tiene que funcionar, el corpus para
+evaluar el método que la resuelva ya está dibujado.
 
 ---
 
