@@ -66,8 +66,8 @@ def detectar_caja(imagen: np.ndarray) -> Caja:
         )
 
     return Caja(
-        izquierda=min(equis),
-        derecha=max(equis),
-        arriba=min(yes),
-        abajo=max(yes),
+        izquierda=float(min(equis)),
+        derecha=float(max(equis)),
+        arriba=float(min(yes)),
+        abajo=float(max(yes)),
     )
