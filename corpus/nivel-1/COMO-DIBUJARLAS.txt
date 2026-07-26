@@ -1,0 +1,241 @@
+===============================================================================
+  CORPUS DEL NIVEL 1  ·  24 GRAFICAS A MANO  ·  D41
+===============================================================================
+
+Esto es lo que responde I1a, la unica pregunta que puede matar el proyecto:
+?el rastreo es preciso sobre un trazo hecho a mano?
+
+Los puntos ya estan elegidos y escritos. Tu no decides nada mientras dibujas:
+solo marcas y unes. Eso es a proposito. La verdad se escribio ANTES que la
+tinta, y por eso es exacta por construccion y no por medicion (D35).
+
+
+-------------------------------------------------------------------------------
+  LA HOJA, UNA SOLA VEZ
+-------------------------------------------------------------------------------
+
+Papel cuadriculado de 5 mm. La caja es de 20 cuadros de ancho por 16 de alto,
+o sea 10 cm x 8 cm.
+
+    fila 16  +---+---+---+---+ ... +---+     <- borde superior = ymax
+             |   |   |   |   |     |   |
+             +---+---+---+---+ ... +---+
+             |   |   |   |   |     |   |
+             ...                    ...
+             |   |   |   |   |     |   |
+    fila  0  +---+---+---+---+ ... +---+     <- borde inferior = ymin
+             col 0                   col 20
+
+    izquierda = xmin        derecha = xmax
+
+LOS CUATRO BORDES SE TRAZAN CON PLUMA, siguiendo lineas de la cuadricula. El
+extractor busca esa caja: es lo que ancla la escala. Sin recuadro completo no
+hay de donde sacarla.
+
+Las coordenadas de abajo son (columna, fila) contando cuadros desde la esquina
+INFERIOR IZQUIERDA de la caja. La fila crece hacia arriba.
+
+
+-------------------------------------------------------------------------------
+  COMO SE DIBUJA CADA UNA
+-------------------------------------------------------------------------------
+
+  1. Traza la caja de 20 x 16 con pluma.
+  2. Marca con lapiz un punto en cada interseccion de la lista.
+  3. Unelos A MANO ALZADA con pluma, en el orden de la lista. Una curva suave,
+     no segmentos rectos. Ahi esta la dificultad que se esta midiendo.
+  4. Borra las marcas de lapiz si se ven.
+  5. Fotografia.
+
+NO escribas numeros en los ejes. La escala se teclea despues (D34): el
+extractor no la lee, la recibe.
+
+
+-------------------------------------------------------------------------------
+  LA FOTO
+-------------------------------------------------------------------------------
+
+  - Lo mas perpendicular que puedas. Dos grados de inclinacion desplazan mas
+    que toda la tolerancia del criterio; la rectificacion todavia no existe.
+  - Luz pareja, sin sombra de tu mano ni brillo del papel.
+  - Encuadra con margen: se recorta despues.
+  - MISMAS CONDICIONES para las 24. Si cambias de telefono o de luz a media
+    tanda, la escalera pierde el sentido, porque el nivel 0 ya midio la camara.
+
+Guarda cada foto junto a su ficha, con el mismo nombre:
+
+    corpus/nivel-1/C1-1.jpg   junto a   corpus/nivel-1/C1-1.verdad.json
+
+
+-------------------------------------------------------------------------------
+  LAS SEIS CONDICIONES
+-------------------------------------------------------------------------------
+
+Cuatro graficas por condicion. Estan a proposito, no al azar: dos de ellas son
+donde D38 predice que el metodo falla, y medirlas es como se distingue "el
+metodo no sirve" de "el metodo no sirve en verticales".
+
+  C1  suave, sin rejilla trazada       el caso facil. Si aqui falla, se acabo
+  C2  suave, CON rejilla trazada       repasa con pluma las lineas de la
+                                       cuadricula cada 2 cuadros, antes de la
+                                       curva. Aisla el borrado de rejilla
+  C3  con tramo casi vertical          D38 predice falla parcial
+  C4  que se dobla hacia atras         D38: sin arreglo con este metodo.
+                                       NO CUENTA para el veredicto; se mide
+                                       para conocer la frontera
+  C5  trazo grueso o tembloroso        usa marcador grueso, o pulso suelto.
+                                       Aisla el centroide de la tinta
+  C6  rango asimetrico, con negativos  aisla la transformacion del paso 6
+
+En C4 el orden de los puntos importa mas que en las otras: la curva se dobla y
+pasa dos veces por la misma columna. Sigue la lista en orden.
+
+
+-------------------------------------------------------------------------------
+  LAS 24
+-------------------------------------------------------------------------------
+
+
+  C1-1   suave, sin rejilla trazada
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0, 2)  ( 2, 3)  ( 4, 4)  ( 6, 6)  ( 8, 8)  (10,10)
+           (12,11)  (14,12)  (16,13)  (18,13)  (20,14)
+
+  C1-2   suave, sin rejilla trazada
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0,15)  ( 2,12)  ( 4,10)  ( 6, 8)  ( 8, 7)  (10, 6)
+           (12, 5)  (14, 4)  (16, 4)  (18, 3)  (20, 3)
+
+  C1-3   suave, sin rejilla trazada
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0,12)  ( 2, 9)  ( 4, 7)  ( 6, 5)  ( 8, 4)  (10, 4)
+           (12, 5)  (14, 7)  (16, 9)  (18,12)  (20,15)
+
+  C1-4   suave, sin rejilla trazada
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0, 2)  ( 2, 2)  ( 4, 3)  ( 6, 5)  ( 8, 8)  (10,11)
+           (12,13)  (14,14)  (16,15)  (18,15)  (20,15)
+
+  C2-1   suave, con rejilla trazada a mano
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0, 4)  ( 2, 6)  ( 4, 8)  ( 6, 9)  ( 8,10)  (10,11)
+           (12,12)  (14,12)  (16,13)  (18,14)  (20,14)
+
+  C2-2   suave, con rejilla trazada a mano
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0,14)  ( 2,14)  ( 4,13)  ( 6,11)  ( 8, 9)  (10, 7)
+           (12, 5)  (14, 4)  (16, 3)  (18, 2)  (20, 2)
+
+  C2-3   suave, con rejilla trazada a mano
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0, 8)  ( 2,11)  ( 4,13)  ( 6,14)  ( 8,13)  (10,11)
+           (12, 8)  (14, 5)  (16, 3)  (18, 2)  (20, 3)
+
+  C2-4   suave, con rejilla trazada a mano
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0, 3)  ( 2, 4)  ( 4, 6)  ( 6, 9)  ( 8,11)  (10,12)
+           (12,11)  (14, 9)  (16, 6)  (18, 4)  (20, 3)
+
+  C3-1   con tramo casi vertical
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         10 puntos, en (columna, fila):
+           ( 0, 2)  ( 2, 3)  ( 4, 4)  ( 6, 4)  ( 7,10)  ( 8,14)
+           ( 9,15)  (12,15)  (16,16)  (20,16)
+
+  C3-2   con tramo casi vertical
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         9 puntos, en (columna, fila):
+           ( 0,15)  ( 4,14)  ( 8,13)  (10,13)  (11, 6)  (12, 2)
+           (13, 1)  (16, 1)  (20, 1)
+
+  C3-3   con tramo casi vertical
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         9 puntos, en (columna, fila):
+           ( 0, 1)  ( 4, 2)  ( 8, 3)  (12, 4)  (13,11)  (14,15)
+           (15,16)  (18,16)  (20,16)
+
+  C3-4   con tramo casi vertical
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         9 puntos, en (columna, fila):
+           ( 0,16)  ( 2,15)  ( 4,14)  ( 5, 8)  ( 6, 3)  ( 7, 2)
+           (10, 2)  (15, 1)  (20, 1)
+
+  C4-1   que se dobla hacia atras   [no cuenta para el veredicto]
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         9 puntos, en (columna, fila):
+           ( 2, 2)  ( 6, 4)  (10, 8)  (14,12)  (16,15)  (12,14)
+           ( 8,11)  ( 4, 7)  ( 2, 4)
+
+  C4-2   que se dobla hacia atras   [no cuenta para el veredicto]
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         6 puntos, en (columna, fila):
+           (12, 2)  ( 6, 3)  ( 2, 6)  ( 2,10)  ( 6,13)  (12,14)
+
+  C4-3   que se dobla hacia atras   [no cuenta para el veredicto]
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         8 puntos, en (columna, fila):
+           ( 4, 2)  (10, 4)  (16, 8)  (18,12)  (14,15)  ( 8,14)
+           ( 4,10)  ( 3, 6)
+
+  C4-4   que se dobla hacia atras   [no cuenta para el veredicto]
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         6 puntos, en (columna, fila):
+           ( 2, 8)  ( 6,13)  (10,12)  (10, 6)  (14, 3)  (18, 8)
+
+  C5-1   trazo grueso o tembloroso
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0, 4)  ( 2, 5)  ( 4, 7)  ( 6, 9)  ( 8,10)  (10,11)
+           (12,12)  (14,12)  (16,13)  (18,13)  (20,14)
+
+  C5-2   trazo grueso o tembloroso
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0,13)  ( 2,12)  ( 4,10)  ( 6, 8)  ( 8, 6)  (10, 5)
+           (12, 4)  (14, 4)  (16, 3)  (18, 3)  (20, 2)
+
+  C5-3   trazo grueso o tembloroso
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0, 6)  ( 2, 8)  ( 4,10)  ( 6,12)  ( 8,13)  (10,14)
+           (12,13)  (14,12)  (16,10)  (18, 8)  (20, 6)
+
+  C5-4   trazo grueso o tembloroso
+         escala a teclear:  x de 0 a 10   ·   y de 0 a 8
+         11 puntos, en (columna, fila):
+           ( 0, 2)  ( 2, 4)  ( 4, 7)  ( 6,10)  ( 8,12)  (10,14)
+           (12,15)  (14,15)  (16,14)  (18,12)  (20,10)
+
+  C6-1   rango asimetrico, con negativos
+         escala a teclear:  x de 0 a 10   ·   y de -6 a 2
+         11 puntos, en (columna, fila):
+           ( 0, 1)  ( 2, 3)  ( 4, 5)  ( 6, 7)  ( 8, 8)  (10, 9)
+           (12,10)  (14,11)  (16,12)  (18,13)  (20,14)
+
+  C6-2   rango asimetrico, con negativos
+         escala a teclear:  x de 0 a 10   ·   y de -6 a 2
+         11 puntos, en (columna, fila):
+           ( 0,15)  ( 2,13)  ( 4,11)  ( 6, 9)  ( 8, 7)  (10, 6)
+           (12, 5)  (14, 4)  (16, 3)  (18, 2)  (20, 1)
+
+  C6-3   rango asimetrico, con negativos
+         escala a teclear:  x de 0 a 10   ·   y de -6 a 2
+         11 puntos, en (columna, fila):
+           ( 0,10)  ( 2, 7)  ( 4, 5)  ( 6, 3)  ( 8, 2)  (10, 2)
+           (12, 3)  (14, 5)  (16, 7)  (18,10)  (20,13)
+
+  C6-4   rango asimetrico, con negativos
+         escala a teclear:  x de 0 a 10   ·   y de -6 a 2
+         11 puntos, en (columna, fila):
+           ( 0, 2)  ( 2, 6)  ( 4, 9)  ( 6,11)  ( 8,13)  (10,14)
+           (12,15)  (14,14)  (16,12)  (18, 9)  (20, 6)
+
+===============================================================================

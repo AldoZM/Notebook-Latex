@@ -1,0 +1,105 @@
+{
+  "nivel": 1,
+  "id": "C3-2",
+  "condicion": "C3",
+  "descripcion": "con tramo casi vertical",
+  "aisla": "donde D38 predice falla parcial",
+  "cuenta_para_veredicto": true,
+  "ejes": {
+    "x": {
+      "min": 0.0,
+      "max": 10.0,
+      "etiqueta": "",
+      "escala": "lineal"
+    },
+    "y": {
+      "min": 0.0,
+      "max": 8.0,
+      "etiqueta": "",
+      "escala": "lineal"
+    }
+  },
+  "cuadricula": {
+    "lado_mm": 5,
+    "cuadros_x": 20,
+    "cuadros_y": 16,
+    "unidades_por_cuadro_x": 0.5,
+    "unidades_por_cuadro_y": 0.5
+  },
+  "puntos": [
+    [
+      0.0,
+      7.5
+    ],
+    [
+      2.0,
+      7.0
+    ],
+    [
+      4.0,
+      6.5
+    ],
+    [
+      5.0,
+      6.5
+    ],
+    [
+      5.5,
+      3.0
+    ],
+    [
+      6.0,
+      1.0
+    ],
+    [
+      6.5,
+      0.5
+    ],
+    [
+      8.0,
+      0.5
+    ],
+    [
+      10.0,
+      0.5
+    ]
+  ],
+  "puntos_en_cuadros": [
+    [
+      0,
+      15
+    ],
+    [
+      4,
+      14
+    ],
+    [
+      8,
+      13
+    ],
+    [
+      10,
+      13
+    ],
+    [
+      11,
+      6
+    ],
+    [
+      12,
+      2
+    ],
+    [
+      13,
+      1
+    ],
+    [
+      16,
+      1
+    ],
+    [
+      20,
+      1
+    ]
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "nivel": 1,
+  "id": "C4-4",
+  "condicion": "C4",
+  "descripcion": "que se dobla hacia atras",
+  "aisla": "D38: sin arreglo con este metodo",
+  "cuenta_para_veredicto": false,
+  "ejes": {
+    "x": {
+      "min": 0.0,
+      "max": 10.0,
+      "etiqueta": "",
+      "escala": "lineal"
+    },
+    "y": {
+      "min": 0.0,
+      "max": 8.0,
+      "etiqueta": "",
+      "escala": "lineal"
+    }
+  },
+  "cuadricula": {
+    "lado_mm": 5,
+    "cuadros_x": 20,
+    "cuadros_y": 16,
+    "unidades_por_cuadro_x": 0.5,
+    "unidades_por_cuadro_y": 0.5
+  },
+  "puntos": [
+    [
+      1.0,
+      4.0
+    ],
+    [
+      3.0,
+      6.5
+    ],
+    [
+      5.0,
+      6.0
+    ],
+    [
+      5.0,
+      3.0
+    ],
+    [
+      7.0,
+      1.5
+    ],
+    [
+      9.0,
+      4.0
+    ]
+  ],
+  "puntos_en_cuadros": [
+    [
+      2,
+      8
+    ],
+    [
+      6,
+      13
+    ],
+    [
+      10,
+      12
+    ],
+    [
+      10,
+      6
+    ],
+    [
+      14,
+      3
+    ],
+    [
+      18,
+      8
+    ]
+  ]
+}

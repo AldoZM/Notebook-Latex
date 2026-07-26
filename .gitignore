@@ -5,5 +5,10 @@ __pycache__/
 *.egg-info/
 salida/
 graphify-out/
-corpus/
 *.pdf
+
+# Del corpus se versiona la VERDAD, que es la referencia de medicion, y no las
+# imagenes, que son grandes y se pueden volver a capturar.
+corpus/**/*.png
+corpus/**/*.jpg
+corpus/**/*.jpeg

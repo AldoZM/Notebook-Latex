@@ -1,0 +1,121 @@
+{
+  "nivel": 1,
+  "id": "C6-3",
+  "condicion": "C6",
+  "descripcion": "rango asimetrico, con negativos",
+  "aisla": "la transformacion del paso 6",
+  "cuenta_para_veredicto": true,
+  "ejes": {
+    "x": {
+      "min": 0.0,
+      "max": 10.0,
+      "etiqueta": "",
+      "escala": "lineal"
+    },
+    "y": {
+      "min": -6.0,
+      "max": 2.0,
+      "etiqueta": "",
+      "escala": "lineal"
+    }
+  },
+  "cuadricula": {
+    "lado_mm": 5,
+    "cuadros_x": 20,
+    "cuadros_y": 16,
+    "unidades_por_cuadro_x": 0.5,
+    "unidades_por_cuadro_y": 0.5
+  },
+  "puntos": [
+    [
+      0.0,
+      -1.0
+    ],
+    [
+      1.0,
+      -2.5
+    ],
+    [
+      2.0,
+      -3.5
+    ],
+    [
+      3.0,
+      -4.5
+    ],
+    [
+      4.0,
+      -5.0
+    ],
+    [
+      5.0,
+      -5.0
+    ],
+    [
+      6.0,
+      -4.5
+    ],
+    [
+      7.0,
+      -3.5
+    ],
+    [
+      8.0,
+      -2.5
+    ],
+    [
+      9.0,
+      -1.0
+    ],
+    [
+      10.0,
+      0.5
+    ]
+  ],
+  "puntos_en_cuadros": [
+    [
+      0,
+      10
+    ],
+    [
+      2,
+      7
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      6,
+      3
+    ],
+    [
+      8,
+      2
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      12,
+      3
+    ],
+    [
+      14,
+      5
+    ],
+    [
+      16,
+      7
+    ],
+    [
+      18,
+      10
+    ],
+    [
+      20,
+      13
+    ]
+  ]
+}
