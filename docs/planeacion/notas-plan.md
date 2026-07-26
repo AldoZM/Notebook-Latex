@@ -12,7 +12,9 @@ tenga que volver a recorrer lo ya recorrido.
 - **Última revisión:** 2026-07-26 — D34–D40 integran al registro las decisiones
   de la fase 1, que vivían sueltas en la nota de continuidad. D40 cierra el
   hueco que D37 había dejado abierto sobre la normalización. D41 dimensiona el
-  corpus del nivel 1 y D42 acota D16 tras construir el generador del nivel −1
+  corpus del nivel 1 y D42 acota D16 tras construir el generador del nivel −1.
+  D43–D48 diseñan el extractor y registran lo que salió de medir su primera
+  caminata: error mediano del 0.35% sobre el nivel −1, con la leyenda fuera
 
 ---
 
@@ -67,6 +69,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D45 | Los huecos del barrido: cerrar, rellenar marcado, no extrapolar | precisa D38 |
 | D46 | La forma del documento que emite el extractor | deja una deuda |
 | D47 | **El extractor no degrada: para, o entrega algo confiable** | excepción a D18 |
+| D48 | El material de prueba no lleva leyenda, y el criterio se mide entero | |
 
 ---
 
@@ -812,6 +815,51 @@ tinta que sus vecinas— y se emite `punto_incierto` cuando aparece.
 Eso convierte a C3 de **falla silenciosa** en **falla anunciada**, que para el
 veredicto de I1a es una diferencia enorme: un error que generó duda es un error
 manejable; uno que no, es de los únicos inaceptables según la Sección 11.
+
+### D48 — El material de prueba no lleva leyenda, y el criterio se mide entero
+
+Sale de medir la primera caminata del extractor, no de discutirlo.
+
+**El hallazgo.** pgfplots dibuja el recuadro de leyenda **dentro** de la caja de
+los ejes, y ahí `tinta.py` no lo distingue de la curva: su tinta entra al
+centroide de cada columna que cruza y jala el rastreo hacia arriba. Comprobado
+mirando los grupos de tinta por columna — en `x=7` había tres grupos, dos de un
+píxel muy por encima de la curva.
+
+**La leyenda sale del material, no se le enseña al extractor a ignorarla.** Es un
+artefacto nuestro: la emite el compositor porque el producto la necesita. El
+dominio de la fase 1 son gráficas de cuaderno de **una sola curva** (D36), que no
+llevan recuadro de leyenda. Enseñarle al extractor a borrar leyendas sería
+construir para un caso que D36 dejó fuera, y encima usando el material de prueba
+como excusa. No se toca el compositor: se opera sobre el fragmento que ya
+devolvió.
+
+**Y el criterio se comprueba entero.** El de I1 (Sección 11) tiene dos partes
+—mediana bajo 2% **y** ningún punto sobre 5%— y la prueba solo codificaba la
+primera.
+
+> Con la leyenda contaminando, la mediana estaba en **0.31%** y la suite pasaba
+> en verde, mientras **3 de 11 puntos fallaban con casi 20%**.
+
+Esa es la lección y vale más que el arreglo: **la mediana no ve los valores
+extremos, que es exactamente lo que el segundo criterio existe para atrapar.**
+Medir solo la mediana no es medir de menos, es medir la parte que nunca iba a
+fallar. Cualquier medición futura de I1 o I2 se escribe con las dos partes desde
+el principio.
+
+**Números después del arreglo**, sobre las tres familias del nivel −1:
+
+| Familia | Mediano | Peor | Puntos > 5% |
+|---|---|---|---|
+| exponencial decreciente | 0.06% | 0.74% | 0 de 33 |
+| lineal | 0.33% | 0.50% | 0 de 33 |
+| senoidal | 0.55% | 1.86% | 0 de 63 |
+| **Total** | **0.35%** | **1.86%** | **0 de 129** |
+
+**Lo que estos números NO dicen.** Son gráficas generadas por nuestro propio
+motor: sin ruido, sin papel, sin mano y sin cámara. Prueban que el rastreo no
+está roto, no que sirva. **Quien responde I1a son las 24 gráficas de D41
+dibujadas a mano**, y ese corpus todavía no existe.
 
 ---
 
