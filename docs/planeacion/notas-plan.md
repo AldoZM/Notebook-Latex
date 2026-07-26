@@ -65,6 +65,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D43 | El extractor devuelve contrato **y traza** | |
 | D44 | La confianza de la fase 1 es un marcador de posición declarado | |
 | D45 | Los huecos del barrido: cerrar, rellenar marcado, no extrapolar | precisa D38 |
+| D46 | La forma del documento que emite el extractor | deja una deuda |
 
 ---
 
@@ -714,6 +715,53 @@ hasta el 1% del ancho de la gráfica, como parámetro y no como constante. Y com
 el nivel −1 tiene verdad perfecta, `ctex-medir` reporta **por separado el error
 de los puntos medidos y el de los rellenos**: si los rellenos salen mucho peores,
 el umbral se baja con números en la mano.
+
+### D46 — La forma del documento que emite el extractor
+
+`ctex-extraer` produce un documento del contrato v1.0 con **un solo bloque de
+tipo `grafica`**. Cuatro detalles de esa forma no son obvios:
+
+**`region` es el recorte entero.** Por D37 la entrada *ya es* la gráfica, así que
+no hay nada que localizar dentro de nada. El día que entre la segmentación, ese
+campo empezará a decir algo distinto, y ese cambio será la señal de que la fase
+cambió.
+
+**`confianza` vale 0.5, y el valor está elegido.** Precisa D44: entre los
+marcadores posibles, 0.5 es el que *menos* información aparenta. Un 0.9 afirmaría
+seguridad y sería mentira; un 0.1 pediría desconfianza y también.
+
+**Los tres campos de texto van vacíos** —`titulo` y las dos `etiqueta` de los
+ejes—. D34 sacó el lector de etiquetas de la fase 1 y D30 ya había establecido
+que el texto lo teclea el usuario al confirmar la escala. Vacío es honesto;
+inventarlo sería peor.
+
+**`min` y `max` salen de los argumentos, no de la imagen.** Es D34 hecho dato: el
+extractor no lee la escala, la recibe.
+
+**Códigos de salida**, siguiendo la convención de `ctex`:
+
+| | |
+|---|---|
+| `0` | salió el contrato |
+| `2` | argumentos malos: rango invertido, imagen inexistente |
+| `3` | **no encontró el marco**: los dos ejes no aparecieron |
+| `4` | encontró el marco pero no encontró curva |
+
+Que 3 y 4 sean distintos importa: son fallas de pasos distintos, se arreglan con
+cosas distintas, y un solo código "no pude" obligaría a abrir la imagen para
+saber cuál fue.
+
+#### Deuda anotada: `origen.pagina`
+
+El contrato exige `origen.archivo` y `origen.pagina`. El extractor recibe **un
+recorte suelto, que no viene de la página de nada**, así que escribe `pagina: 1`
+fijo. Es válido para el esquema y es un dato falso.
+
+No se toca el contrato por esto: la regla es que la frontera no se mueve a la
+ligera, y un campo de más en la v1 cuesta menos que un esquema inestable. Pero
+queda registrado porque **es el primer lugar donde la fase 1 le miente al esquema
+por falta de contexto**, y cuando llegue la segmentación —que sí sabe de qué
+página salió cada recorte— habrá que resolverlo de verdad en vez de descubrirlo.
 
 ---
 
