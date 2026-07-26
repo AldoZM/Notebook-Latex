@@ -1,0 +1,215 @@
+===============================================================================
+  C-tex  ·  MAPA DEL PROCESO  ·  de la idea al producto
+===============================================================================
+
+Este archivo contesta una sola pregunta: COMO se esta trabajando.
+
+Es el mapa que conecta a los otros y marca en que punto del camino esta el
+proyecto hoy. Los demas ya contestan lo suyo:
+
+    que se construye        ->  docs/superpowers/specs/2026-07-21-...design.md
+    por que es asi          ->  docs/planeacion/notas-plan.md
+    como se pasa de diseno  ->  docs/planeacion/proceso-de-desarrollo.md
+      a producto
+    donde me quede          ->  SIGUIENTE-SESION.txt
+
+    Escrito: 2026-07-26
+
+
+-------------------------------------------------------------------------------
+  1. EL CAMINO COMPLETO
+-------------------------------------------------------------------------------
+
+Las ocho etapas de proceso-de-desarrollo.md, con su estado real:
+
+    E1   Validacion ................................. HECHO
+    E2   Diseno ..................................... HECHO
+    E3   Plan de implementacion ..................... HECHO (el de la caminata)
+    E4   Andamiaje .................................. HECHO
+    E5   Caminata esqueletica ....................... HECHO   89 pruebas
+    E6   Construccion por fases ..................... EN CURSO   <<<<<<
+    E7   Medicion ................................... pendiente
+    E8   Producto ................................... fuera del motor
+
+Las etapas 3, 4 y 5 estan hechas PARA LA CAMINATA. Cada fase de la E6 vuelve
+a pasar por ellas: su propio plan, su propio codigo, sus propias pruebas.
+No se recorren una vez, se recorren una vez POR FASE.
+
+
+-------------------------------------------------------------------------------
+  2. LA ETAPA 6 POR DENTRO: LAS CINCO FASES DE D30
+-------------------------------------------------------------------------------
+
+    fase 0   licencias y material de prueba          A MEDIAS
+             |
+             +-- R4, licencias de datos y pesos ........ HECHO (D33)
+             +-- corpus nivel 1, 24 graficas ........... FALTA DIBUJARLO (D41)
+
+    fase 1   extractor de graficas      -> responde I1  <<< AQUI, disenando
+    fase 2   aparato de confianza       -> responde I2
+    fase 3   reconocedor de ecuaciones
+    fase 4   reconocedor de prosa
+
+Las fases 1 y 2 responden las dos incognitas del proyecto. La 3 es la cara.
+Ese orden no es cronologico por comodidad: es "primero lo que puede matar
+el proyecto".
+
+
+-------------------------------------------------------------------------------
+  3. EL LAZO CORTO: COMO SE CIERRA UNA DECISION
+-------------------------------------------------------------------------------
+
+Es el lazo en el que gira una sesion. Una vuelta por decision, sin acumular
+decisiones a medias.
+
+    pregunta  -->  dos o tres   -->  se elige  -->  se ANOTA  -->  commit
+    concreta       opciones,         UNA            en notas-      y sigue la
+                   una recomendada                  plan.md        siguiente
+       ^                                                               |
+       |                                                               |
+       +---------------------------------------------------------------+
+
+Las reglas del lazo:
+
+    - UNA pregunta a la vez. Si un tema necesita mas, se parte en varias.
+    - Siempre hay recomendacion. Un menu sin opinion traslada el trabajo
+      en vez de hacerlo.
+    - Se anota ANTES de pasar a la siguiente. Una decision que vive solo en
+      la conversacion se pierde en cuanto se corta la sesion; ya paso, y por
+      eso D34-D38 estuvieron sueltas en SIGUIENTE-SESION.txt.
+    - NO SE EDITA EL PASADO. Cuando algo cambia, entra una decision nueva
+      que revoca la vieja, con su motivo. El registro es un historial, no
+      una foto del estado actual.
+    - Cuando el codigo contradiga al diseno, gana el codigo. Pero se anota.
+
+Ejemplo real de este lazo, de la sesion del 2026-07-26:
+
+    pregunta   "de quien es el enderezado?"
+    hallazgo   el barrido por columnas presupone el eje X horizontal;
+               2 grados de inclinacion desplazan mas que toda la tolerancia
+    opciones   A) dentro del extractor  B) modulo aparte  C) fuera de la fase
+    elegida    A
+    anotada    D40, que ademas parte la etapa 1 de la arquitectura en dos
+    commit     f484f8c
+
+
+-------------------------------------------------------------------------------
+  4. EL EMBUDO: DE PREGUNTA ABIERTA A CODIGO
+-------------------------------------------------------------------------------
+
+El lazo corto de arriba produce decisiones sueltas. Este embudo las convierte
+en codigo. Cada nivel se aprueba antes de bajar al siguiente.
+
+    pregunta abierta
+         |
+         v
+    DECISIONES SUELTAS          D34 .. D41            <- saliendo de aqui
+         |                      cada una en notas-plan.md
+         v
+    DISENO POR SECCIONES        arquitectura, componentes, flujo de datos,
+         |                      errores, pruebas. Se aprueba una por una.
+         v
+    ESPECIFICACION              docs/superpowers/specs/AAAA-MM-DD-*-design.md
+         |                      el QUE, para un lector que no estuvo
+         v
+    PLAN DE IMPLEMENTACION      tareas que caben en una sesion, con
+         |                      dependencias y criterio de terminado
+         v
+    CODIGO                      por lotes, con revision en cada corte
+
+Regla del embudo: un buen plan NO agrega requisitos nuevos, traduce a algo
+tachable los que ya estan escritos. Si al planear aparece un requisito que
+no estaba, falta una decision, no falta una tarea.
+
+Sobre el ultimo paso: los planes ya escritos se ejecutan EN LINEA POR LOTES,
+con revision en cada corte. Los subagentes se reservan para investigacion
+paralela e independiente, que es como se resolvio R4.
+
+
+-------------------------------------------------------------------------------
+  5. LA ESCALERA DE MEDICION
+-------------------------------------------------------------------------------
+
+Cuatro niveles de material de prueba (D35). Cada escalon agrega exactamente
+una dificultad, para que cuando algo falle se sepa cual.
+
+        nivel  2   cuadernos reales          el caso real, a juicio
+          ^
+          |        + realismo, - control
+          |
+        nivel  1   dibujado a mano           <<< AQUI SE RESPONDE I1a
+          |                                  24 graficas, 6 condiciones (D41)
+          |
+        nivel  0   impreso y fotografiado    aisla la camara, ella sola
+          |
+          |        + control, - realismo
+          |
+        nivel -1   sintetico, de pgfplots    verdad perfecta e ilimitada
+                                             corre en cada cambio
+
+El motor de salida genera el material de entrada del motor de entrada. El
+nivel -1 no cuesta nada; el nivel 1 hay que dibujarlo a mano y es el unico
+que responde I1a.
+
+
+-------------------------------------------------------------------------------
+  6. EL MAPA DE DOCUMENTOS
+-------------------------------------------------------------------------------
+
+    PREGUNTA                       DONDE SE CONTESTA
+    -----------------------------  ---------------------------------------
+    Que se construye?              docs/superpowers/specs/2026-07-21-...
+    Por que es asi?                docs/planeacion/notas-plan.md
+    Como se pasa de diseno a       docs/planeacion/proceso-de-desarrollo.md
+      producto?
+    Como se esta trabajando?       este archivo
+    Donde me quede?                SIGUIENTE-SESION.txt
+    De donde salio la idea?        docs/planeacion/antecedente-m14.md
+    Que licencia tiene cada dato?  docs/planeacion/r4-licencias-datos.md
+    Que se construyo ya?           docs/superpowers/plans/2026-07-22-...
+
+Cada documento contesta UNA pregunta. Cuando un hecho aparece en dos, uno de
+los dos se queda desactualizado y no hay forma de saber cual.
+
+
+-------------------------------------------------------------------------------
+  7. LAS REGLAS QUE NO CAMBIAN
+-------------------------------------------------------------------------------
+
+    - Rebanadas verticales, no horizontales. Un camino delgado que atraviesa
+      todo el sistema y luego se engorda. Lo horizontal deja seis etapas al
+      80% y nada que funcione.
+
+    - La prueba primero, en lo determinista. En composicion, compilacion,
+      escalado y remuestreo la respuesta correcta se conoce de antemano. En
+      el reconocedor no aplica igual: ahi se miden metricas, no exactitud.
+
+    - Si medir es trabajoso, no se mide. Las metricas salen de EJECUTAR UN
+      COMANDO, no de un procedimiento manual. Por eso ctex-medir es parte
+      del producto y no un extra.
+
+    - Un skipped no es un passed. Las pruebas que compilan se saltan solas
+      si no encuentran Tectonic.
+
+    - Commits chicos y legibles despues. Sin firma de IA, sin Co-Authored-By.
+
+    - La salud del proyecto no se mide por cuantas veces cambia de opinion,
+      sino por cuanto cuesta cada cambio. El contrato existe para que
+      cambiar una etapa cueste una etapa.
+
+
+-------------------------------------------------------------------------------
+  8. QUE NO ES ESTE ARCHIVO
+-------------------------------------------------------------------------------
+
+    - No es un calendario. No hay fechas y no deberia haberlas hasta que la
+      fase 1 de una idea real de cuanto cuesta una tarea de este proyecto.
+
+    - No es el estado del proyecto. Para eso esta SIGUIENTE-SESION.txt, que
+      se reescribe al cerrar cada sesion. Este archivo describe la forma de
+      trabajar, que cambia mucho mas despacio.
+
+    - No es un contrato. Si al construir resulta que un paso sobra, se
+      cambia este archivo, con su nota de que cambio y por que.
+
+===============================================================================
