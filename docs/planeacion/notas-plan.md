@@ -9,8 +9,9 @@ tenga que volver a recorrer lo ya recorrido.
 - **Carpeta local:** `D:\Codigo Abierto\C-tex`
 - **Repositorio:** https://github.com/AldoZM/Notebook-Latex
 - **Inicio:** 2026-07-21
-- **Última revisión:** 2026-07-25 — la caminata esquelética existe y compila;
-  D32 cierra una evasión real de la lista blanca y D33 resuelve R4
+- **Última revisión:** 2026-07-26 — D34–D40 integran al registro las decisiones
+  de la fase 1, que vivían sueltas en la nota de continuidad. D40 cierra el
+  hueco que D37 había dejado abierto sobre la normalización
 
 ---
 
@@ -28,7 +29,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D8 | **Revisión dirigida por confianza** | |
 | D9 | Se construye primero el motor, por línea de comandos | |
 | D10 | Python no dibuja gráficas | |
-| D11 | Estrategia de lenguajes: una sola frontera con C++ | |
+| D11 | Estrategia de lenguajes: una sola frontera con C++ | revisada por D38 |
 | D12 | La velocidad para empresas es paralelismo, no lenguaje | |
 | D13 | La escala se confirma siempre en la v1 | |
 | D14 | Confianza por consenso, para texto y ecuaciones | **revocada por D29** |
@@ -51,6 +52,13 @@ tenga que volver a recorrer lo ya recorrido.
 | D31 | El campo `latex` es la excepción del contrato; la lista blanca es su compuerta | corregida por D32 |
 | D32 | La lista blanca de comandos, sola, es evadible con la notación `^^` | |
 | D33 | Ruta de datos: sintético propio, y pesos abiertos para ecuaciones | resuelve R4 |
+| D34 | La escala se teclea; el clasificador de dígitos no entra en la fase 1 | F1 |
+| D35 | Material de prueba: una escalera de cuatro niveles | F2 |
+| D36 | Alcance de la fase 1: una sola curva | F3 |
+| D37 | La entrada es un recorte que ya es la gráfica | F4, revisa el alcance |
+| D38 | **Rastreo: barrido por columnas, sin C++** | F5, revisa D11 |
+| D39 | La fase 1 se entrega como dos comandos encadenables | F6 |
+| D40 | La rectificación del recorte es del extractor | F7, parte la etapa 1 |
 
 ---
 
@@ -346,6 +354,205 @@ nombre, versión, fecha de descarga, URL, copia local del texto de la licencia y
 el aviso de atribución exigido. Se crea cuando entre el primer conjunto, no
 antes. Cuando llegue el primer cliente empresarial con diligencia debida, ese
 archivo es la diferencia entre responder en un día y auditar durante un mes.
+
+---
+
+## La fase 1: el extractor de gráficas
+
+Estas siete decisiones se tomaron entre el 2026-07-25 y el 2026-07-26, mientras
+se diseñaba la fase que responde **I1**. Las cinco primeras vivieron un tiempo
+solo en `SIGUIENTE-SESION.txt`, donde se llamaron **F1** a **F5**; aquí quedan
+integradas al registro con su número definitivo. La correspondencia se anota
+porque la nota de continuidad las nombra con la letra F.
+
+| Aquí | En la nota | Qué decide |
+|---|---|---|
+| D34 | F1 | La escala se teclea |
+| D35 | F2 | Escalera de cuatro niveles |
+| D36 | F3 | Una sola curva |
+| D37 | F4 | La entrada es un recorte |
+| D38 | F5 | Barrido por columnas |
+| D39 | F6 | Dos comandos encadenables |
+| D40 | F7 | La rectificación es del extractor |
+
+### D34 — La escala se teclea; el clasificador de dígitos no entra en la fase 1
+
+**I1 son en realidad dos preguntas de peso muy distinto**, y meterlas en la misma
+fase las hace fallar juntas sin necesidad:
+
+- **I1a — ¿el rastreo es preciso?** Si falla, no hay proyecto.
+- **I1b — ¿se lee la escala sola?** Si falla, el usuario teclea la escala. Es
+  fricción, no muerte.
+
+Los criterios 1 y 2 de la Sección 11 —error mediano menor al 2% del rango,
+ningún punto por encima del 5%— se miden con la escala **dada**. El criterio 3
+—escala leída bien en más del 95%— es I1b y espera a su propia fase.
+
+D13 ya obliga a confirmar la escala de cada gráfica en la v1, de modo que
+teclearla no agrega un paso que no fuera a existir: adelanta uno que ya estaba
+decidido.
+
+### D35 — Material de prueba: una escalera de cuatro niveles
+
+La Sección 11 definió tres niveles. Se agrega un **nivel −1** que no estaba:
+
+| Nivel | Material | Qué aísla |
+|---|---|---|
+| **−1** | Nuestro propio motor genera gráficas de pgfplots con datos exactos, se compila y se rasteriza el PDF | Nada externo. Verdad perfecta, cantidad ilimitada, cero trabajo manual |
+| **0** | Esas mismas, impresas y fotografiadas | El canal de captura solo |
+| **1** | Dibujadas a mano copiando datos elegidos | El trazo a mano. **Aquí se responde I1a** |
+| **2** | Las reales de los cuadernos | El caso real, a juicio |
+
+**El motor de salida se vuelve el generador de material del motor de entrada.**
+El nivel −1 corre en cada cambio porque no cuesta nada.
+
+Pero el nivel −1 **no responde I1a**: solo el nivel 1 lo hace, y ese hay que
+dibujarlo a mano.
+
+**Cómo se dibuja una gráfica del nivel 1** (derivado el 2026-07-26). El riesgo
+del nivel 1 es confundir dos verdades: la *de intención* —los números que se
+eligieron— y la *de trazo* —dónde está la tinta—. Comparar contra la primera
+mide `error de la mano + error del rastreador` revueltos; medir la segunda
+requiere un extractor, que es el problema mismo. La salida es hacer que el error
+de la mano sea despreciable frente a la tolerancia:
+
+1. **Los datos se eligen primero.** Un generador escoge 8–12 puntos y emite un
+   JSON con ellos y con los rangos de eje. Ese JSON es la verdad y existe antes
+   que la tinta.
+2. **Papel cuadriculado.** La cuadrícula es el sistema de coordenadas: los
+   puntos se marcan en intersecciones y la verdad queda exacta **por
+   construcción**, no por medición. Sin cuadrícula no se sabe dónde se pusieron
+   los propios puntos. El requisito de verdad exacta obliga al papel
+   cuadriculado; no es una comodidad.
+3. **Los ejes van a mano, siguiendo la cuadrícula.** Imprimir el marco haría
+   trivial el paso 1 de los siete de una forma que no se parece a nada real.
+4. **La curva une los puntos a mano libre.** Ahí está la dificultad que se mide.
+5. **Se fotografía en las mismas condiciones que el nivel 0**, o la contribución
+   de la cámara deja de ser restable entre niveles y la escalera pierde sentido.
+
+**La verdad es puntual, en las marcas.** El rastreador entrega un valor por
+columna y luego remuestrea, así que sus puntos no caen en las x de la verdad:
+`ctex-medir` interpola la curva extraída en cada x de verdad para comparar. Esto
+cambia una cuenta que importa — con 8–12 puntos por gráfica, un corpus de 24
+gráficas son **~240 puntos de verdad, no ~1200**. El criterio "ninguno mayor al
+5%" sobre 240 es exigente pero razonable; sobre 1200 era una lotería, porque un
+solo píxel mal interpretado tumbaba el veredicto completo.
+
+**Presupuesto de error**, sobre cuadrícula de 5 mm y área de gráfica de ~10 cm
+por eje, donde el 2% del rango son 2 mm:
+
+| Fuente | Magnitud | % del rango |
+|---|---|---|
+| Marcar el punto en la intersección | ~0.25 mm | 0.25 % |
+| Centroide de un trazo de 0.5 mm | ~0.1 mm | 0.1 % |
+| Resolución de foto (12 MP sobre 10 cm) | ~0.05 mm | 0.05 % |
+| **Perspectiva sin corregir, inclinación de 2°** | **~3.5 mm** | **3.5 %** |
+| Rastreo | el resto | ← lo que se mide |
+
+La mano no es el problema: las tres primeras suman menos del 0.5%. **La
+perspectiva sí**, y de ahí sale D40.
+
+**Queda abierto:** cuántas gráficas tiene el corpus del nivel 1, y con qué
+condiciones. La propuesta sobre la mesa es estratificarlo por condición —incluir
+a propósito los dos casos donde D38 predice la falla— y reportar el error por
+condición, no solo el global. Sin eso la medición sale optimista.
+
+### D36 — Alcance de la fase 1: una sola curva
+
+Ejes rectos, con o sin rejilla. **Fuera por ahora:** varias curvas, dispersión y
+barras.
+
+Dos curvas que se cruzan es un problema distinto —separación de curvas— y
+contamina la medición de I1a con una dificultad que no es la que se está
+midiendo.
+
+### D37 — La entrada es un recorte que ya es la gráfica
+
+Localizarla dentro de una hoja con texto —la **etapa 2, segmentación**— sale de
+la fase 1 y tendrá su propia fase.
+
+> **Revisa la especificación**, que metía las etapas 1, 2 y 3 en la fase 1.
+
+La frase de la revocación nombra tres etapas pero solo argumenta sobre la 2, y
+dejó sin decidir si la **etapa 1, normalización**, se iba con ella. Ese hueco lo
+cierra D40, no esta decisión.
+
+### D38 — Rastreo: barrido por columnas con centroide de la tinta
+
+No seguimiento secuencial. Es una operación sobre el arreglo completo:
+vectorizada, en milisegundos.
+
+> **Revisa D11**, que reservaba el rastreador como el único lugar donde entraría
+> C++ con pybind11. El argumento de D11 era que rastrear una curva es secuencial
+> y dependiente del paso anterior, y por lo tanto lo único que Python no puede
+> expresar sobre el arreglo completo. Con barrido por columnas esa premisa deja
+> de aplicar: **no hay paso anterior del cual dependa el siguiente.** La regla
+> general de D11 —en Python nunca se recorre píxel por píxel— sigue intacta; lo
+> que cae es su única excepción.
+
+**Dónde se rompe, sabido de antemano:** tramos casi verticales, donde una
+columna con mucha tinta deja el centroide en medio de un salto; y curvas que se
+doblan hacia atrás, tipo histéresis, donde hay dos valores para la misma x. Lo
+segundo no tiene arreglo con este método. Si la medición lo tumba, se pasa al
+secuencial **sabiendo por qué**, que es distinto de haberlo elegido de entrada.
+
+### D39 — La fase 1 se entrega como dos comandos encadenables
+
+Con el contrato como frontera dura entre ellos, más un tercero que mide:
+
+```
+ctex-extraer recorte.png --escala-x 0,10 --escala-y -1,1 --salida hoja.json
+ctex hoja.json --salida ./salida
+ctex-medir corpus/nivel-1/ --informe medicion.md
+```
+
+**Razón de fondo:** el contrato ya tiene esquema, validador y 89 pruebas. Como
+blanco contra el cual entregar, el extractor tiene algo que cumplir desde el
+primer día, y lo que produzca mal se caza ahí mismo en vez de aparecer
+disfrazado al final.
+
+`ctex-medir` no es opcional: la Sección 11 exige que las métricas de I1 e I2
+sean una **suite ejecutable**, porque *si medir es trabajoso, no se mide*.
+
+Se descartó el comando único de imagen a PDF: es más lucido de demostrar, pero
+repega dos motores que D2 separó, y entonces un fallo de extracción se ve igual
+que uno de composición. Se descartó también la biblioteca sin comando: responde
+I1a y deja el extractor sin forma de usarse.
+
+### D40 — La rectificación del recorte es del extractor, y sale de sus propios ejes
+
+Cierra el hueco que D37 dejó abierto.
+
+**El enderezado no es un refinamiento, es prerrequisito de D38.** Una columna de
+la imagen es una columna del sensor, no del eje X. Con dos grados de inclinación
+—que a ojo no se notan— cada columna cruza la curva en un lugar distinto del que
+debería, y el centroide de esa columna no corresponde a ninguna x del gráfico.
+El barrido por columnas **presupone que el eje X está horizontal en la imagen**.
+El presupuesto de error de D35 lo confirma por el otro lado: 2° de inclinación
+desplazan ~3.5% del rango, más que toda la tolerancia del criterio.
+
+**La corrección es casi gratis, porque el insumo ya lo produce el paso 1 de los
+siete.** Detectar el marco *son* las dos rectas largas de los ejes, y esas dos
+rectas —perpendiculares en el papel— son la referencia para rectificar. No hay
+que detectar los bordes de la hoja: **la gráfica trae su propio patrón de
+calibración dibujado encima.**
+
+> **Revisa la arquitectura de siete etapas**, que trataba la normalización como
+> una sola etapa 1. Se parte en dos por escala:
+>
+> - **Normalización de página** —enderezar la hoja, corregir iluminación— se va
+>   con la fase de segmentación, junto a la etapa 2.
+> - **Rectificación del recorte** —a partir de los ejes de la gráfica— se queda
+>   dentro del extractor, en la fase 1.
+
+**No contradice D22.** D22 responde *dónde* corre la normalización —el servidor
+siempre, nunca el cliente— porque con tres superficies cada una enderezaría por
+su cuenta. Es una decisión de topología, no de módulos, y en la fase 1 no hay
+cliente ni servidor: corre en la máquina de desarrollo. Cuando llegue la
+plataforma, un módulo del motor ya está del lado correcto. Y tampoco es
+implementar la normalización dos veces: son dos operaciones a escalas distintas,
+una sobre la hoja con el papel como referencia y otra sobre el recorte con los
+ejes, que es más precisa justo donde el presupuesto de error aprieta.
 
 ---
 
