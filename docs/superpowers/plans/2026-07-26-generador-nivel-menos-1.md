@@ -130,6 +130,59 @@ Exponerlo por línea de comandos, como el resto del motor.
 
 ---
 
+## Tarea 6 — El PNG tiene que ser un recorte, no una página
+
+**Agregada el 2026-07-26, después de revisar las tareas 1–5.** Las cinco
+primeras cumplieron su criterio, pero el criterio estaba incompleto: la Tarea 3
+decía "convertir el PDF en un PNG" y nunca dijo *recortar*. El resultado es una
+página carta completa donde la gráfica ocupa el tercio superior, seguida de
+media hoja en blanco, el pie `Figura 1: ...` y el número de página.
+
+**Eso incumple D37**, que dice que la entrada del extractor es *un recorte que ya
+es la gráfica*, y que localizarla dentro de una página —la etapa 2,
+segmentación— sale de la fase 1. Si el nivel −1 entrega páginas, el extractor
+tendría que segmentar para encontrar la gráfica y para ignorar el pie.
+
+Efecto secundario medido: a 200 ppp la caja de los ejes ocupa unos 550 × 440
+píxeles de una imagen de 1700 × 2200. Cerca del 94% de los píxeles son papel en
+blanco.
+
+### Cómo, y por qué así
+
+`componer_grafica()` devuelve un `figure` que contiene un `tikzpicture` y un
+`\caption`. `envolver()` lo mete en un `article` con márgenes. El recorte se
+consigue **sin detectar nada sobre píxeles**:
+
+1. Se llama a `componer_grafica()` — el mismo código que usa el producto, así
+   que la gráfica la sigue generando el motor de salida (D35).
+2. Se extrae el bloque `\begin{tikzpicture} … \end{tikzpicture}` del fragmento,
+   por sus delimitadores.
+3. Se envuelve en una plantilla `standalone` propia del material, con
+   `\documentclass[border=2mm]{standalone}` y `pgfplots`.
+4. Se compila y se rasteriza igual que antes. La página **es** la gráfica.
+
+Se descartó recortar la imagen buscando la caja de los ejes: sería resolver con
+detección sobre píxeles el mismo problema que el extractor tiene que resolver, y
+usarlo para fabricar el material contra el cual se mide ese extractor es
+circular.
+
+**Terminada cuando:**
+
+- existe `src/ctex/material/plantilla.py` con la plantilla `standalone` del
+  material, **separada de `src/ctex/composicion/plantilla.py`, que no se toca**
+- una función extrae el `tikzpicture` del fragmento que devuelve
+  `componer_grafica()`, y levanta un error claro si no lo encuentra
+- el generador usa esa ruta en vez de `componer()` + `envolver()`
+- el PNG resultante **no contiene el pie de figura ni el número de página**
+- una prueba verifica que el PNG nuevo es sustancialmente más chico en píxeles
+  que la página carta anterior, o que su relación de aspecto ya no es la de una
+  hoja carta
+- una prueba verifica que el `tikzpicture` extraído contiene los mismos puntos
+  que la definición
+- **el determinismo se conserva:** dos corridas con la misma semilla siguen
+  dando archivos con el mismo hash
+- las 102 pruebas siguen pasando
+
 ## Terminado cuando
 
 - las cinco tareas cumplen su criterio
