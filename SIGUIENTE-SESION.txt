@@ -1,288 +1,250 @@
 ===============================================================================
-  C-tex  ·  DONDE ME QUEDE  ·  2026-07-25
+  C-tex  ·  DONDE ME QUEDE  ·  2026-07-26
 ===============================================================================
 
 Nota de continuidad. Leer esto primero al retomar el proyecto.
+
+Si retomas con Claude, basta decirle:
+    "Lee SIGUIENTE-SESION.txt y sigue desde donde se quedo"
 
 
 -------------------------------------------------------------------------------
   1. ESTADO: TODO COMPROMETIDO, NADA PENDIENTE
 -------------------------------------------------------------------------------
 
-Rama: main
-Ultimo commit: cierre de la sesion del 2026-07-25
+Rama: main.  Arbol limpio.  148 pruebas pasando, ninguna saltada.
+48 decisiones registradas (D1 a D48).
 
-A diferencia de la sesion pasada, el arbol de trabajo esta limpio. No hay
-nada que revisar antes de empezar.
+OJO: main va 44 commits adelante de origin/main. NO SE HA EMPUJADO NADA.
+Si quieres publicar, revisa antes que no haya nada que no deba subir.
 
 Recordatorio: sin firma de IA ni Co-Authored-By en los commits.
 
 
 -------------------------------------------------------------------------------
-  2. LO QUE PASO ESTA SESION
+  2. LO QUE EXISTE AHORA: EL MOTOR VA DE IMAGEN A PDF
 -------------------------------------------------------------------------------
 
-HAY CODIGO. La caminata esqueletica esta ejecutada, las 10 tareas.
+Esto es lo nuevo y es grande. La sesion pasada solo existia la mitad de atras.
 
-    JSON del contrato -> validador -> compositor -> Tectonic -> PDF
+    recorte.png  ->  ctex-extraer  ->  hoja.json  ->  ctex  ->  PDF
+                     (nuevo)           (el contrato)  (ya estaba)
 
-    89 pruebas pasando. El PDF sale con el titulo, la ecuacion numerada y la
-    grafica dibujada por pgfplots, vectorial, no una imagen pegada.
+    src/ctex/contrato/      esquema v1.0 + validador
+    src/ctex/composicion/   escapado, plantilla, bloques, compositor
+    src/ctex/compilacion/   Tectonic con --untrusted y limite de 60 s
+    src/ctex/material/      genera el material del nivel -1  <- NUEVO
+    src/ctex/extraccion/    el extractor de graficas         <- NUEVO
+    tests/                  148 pruebas
 
-Tres decisiones nuevas:
+Los dos comandos:
 
-    D31   El campo `latex` de las ecuaciones SI es un campo donde cabe un
-          comando. La Seccion 9 afirmaba lo contrario y era falso. La lista
-          blanca es la compuerta de ese canal, no una precaucion opcional.
+    ctex-extraer recorte.png --escala-x 0,10 --escala-y -1,1 --salida hoja.json
+    ctex hoja.json --salida ./salida
 
-    D32   Y esa lista blanca, sola, era EVADIBLE. La notacion ^^ de TeX
-          codifica un caracter por su valor: ^^77 es 'w', y la sustitucion
-          ocurre antes de que exista el nombre del comando, asi que
-          \^^77rite18 es \write18 para el motor y no es ningun comando para
-          una busqueda de \[a-zA-Z]+.
+EL NUMERO DE LA SESION. Medido contra el nivel -1, que tiene verdad perfecta,
+sobre las tres familias de curvas:
 
-          Comprobado compilando: \^^73ection{X} produjo una seccion real.
+    exponencial decreciente   mediano 0.06%   peor 0.74%   >5%: 0/33
+    lineal                    mediano 0.33%   peor 0.50%   >5%: 0/33
+    senoidal                  mediano 0.55%   peor 1.86%   >5%: 0/63
+    TOTAL 129 puntos          mediano 0.35%   peor 1.86%   >5%: 0
 
-          Cerrado: se prohiben dos acentos seguidos en el campo latex. El
-          superindice normal (x^2) no se toca. Tres ataques nuevos en el
-          corpus.
+Los dos criterios de la Seccion 11 se cumplen con margen.
 
-    D33   Ruta de datos, cierra la parte investigable de R4.
-
-R4 BAJA DE BLOQUEANTE A VIGILADO. La fase 1 puede arrancar.
-
-
--------------------------------------------------------------------------------
-  3. LO QUE SALIO DE R4, EN CORTO
--------------------------------------------------------------------------------
-
-El informe completo, con la licencia exacta de cada conjunto y la URL donde
-se verifico, esta en docs/planeacion/r4-licencias-datos.md
-
-    DIGITOS     Camino limpio. Sintetico propio con tipografias OFL. Son 13
-                clases de un caracter y el dominio son etiquetas de eje,
-                escritas con cuidado. Dias de trabajo, no meses.
-
-    ECUACIONES  Un solo camino. CROHME, MathWriting y HME100K estan los tres
-                cerrados al uso comercial. Queda Aida Calculus (Pearson,
-                CDLA-Sharing-1.0), unico corpus manuscrito con permiso
-                comercial verificado. Plan: Donut base (MIT) -> preentrenar
-                con IM2LATEX-100K (CC0) -> afinar con Aida -> sintetico
-                propio. NO entrenar desde cero.
-
-    PROSA       El caso mas pobre. IAM, RIMES e Imgur5K, los tres estandares,
-                todos no comerciales. Queda GNHK (CC BY 4.0) y sintetico.
-
-LA TRAMPA QUE VA A VOLVER A APARECER:
-
-    UniMER-1M se publica en Hugging Face diciendo Apache 2.0, se ve limpio,
-    y esta construido sobre CROHME y HME100K. Nadie otorga mas derechos de
-    los que tiene.
-
-    Igual con los pesos: trocr-*-handwritten es MIT pero esta afinado sobre
-    IAM. Nougat tiene codigo MIT y pesos CC-BY-NC.
-
-    => Revisar de que esta hecho, no solo que etiqueta trae.
-
-CABOS SUELTOS (ninguno detiene la fase 1):
-
-    - SD19 podria estar bajo el programa SRD de NIST, que si asegura
-      copyright. Solo importa si se va a usar; la ruta principal es
-      sintetica.
-    - La OFL no contemplo los conjuntos de imagenes de glifos, y no todas
-      las familias de Google Fonts son OFL. Revisar familia por familia
-      antes de construir el generador.
-    - Dos preguntas de abogado, listadas en D33.
+LO QUE ESE NUMERO NO DICE, Y HAY QUE REPETIRLO CADA VEZ: son graficas que
+genera nuestro propio motor. Sin ruido, sin papel, sin mano y sin camara.
+Prueban que el rastreo NO ESTA ROTO. No prueban que sirva.
 
 
 -------------------------------------------------------------------------------
-  4. LOS ARCHIVOS DEL PROYECTO
+  3. AQUI ME QUEDE: HAY QUE DIBUJAR 24 GRAFICAS A MANO
 -------------------------------------------------------------------------------
 
-  CODIGO
+Es lo unico que bloquea saber si el proyecto vive, y es lo unico del proyecto
+que no puede hacer una maquina.
 
-  src/ctex/contrato/       esquema.json v1.0 + validador
-  src/ctex/composicion/    escapado (la pieza de seguridad), plantilla,
-                           bloques, compositor
-  src/ctex/compilacion/    Tectonic con --untrusted y limite de 60 s
-  src/ctex/cli.py          el comando `ctex`
-  tests/                   89 pruebas, incluido el corpus de ataques
+    corpus/nivel-1/COMO-DIBUJARLAS.txt      el procedimiento y las 24 listas
+    corpus/nivel-1/C1-1.verdad.json ...     las 24 fichas, ya escritas
 
-  DOCUMENTOS
+Todo esta decidido de antemano: los puntos, los rangos, las coordenadas en
+cuadros. Al dibujar no se decide nada, solo se marca y se une. La verdad se
+escribio ANTES que la tinta, y por eso es exacta por construccion (D35).
 
-  README.md
-      Portada. La idea, por que el motor es propio, como probarlo.
+Papel cuadriculado de 5 mm, caja de 20 x 16 cuadros (10 cm x 8 cm), los cuatro
+bordes trazados con pluma. Foto perpendicular, misma luz para las 24.
 
-  docs/superpowers/specs/2026-07-21-motor-conversion-latex-design.md
-      QUE se construye. 15 secciones.
+    242 puntos de verdad, de los cuales 213 cuentan para el veredicto.
+    Los 29 restantes son de C4, que se mide pero queda fuera (D41).
 
-  docs/planeacion/notas-plan.md
-      POR QUE es asi. 33 decisiones con columna de estado.
+NO HACE FALTA TENER LAS 24 PARA EMPEZAR. Con las cuatro de C1 ya se mide el
+caso facil, y si ahi falla no hay que dibujar las otras veinte.
 
-  docs/planeacion/r4-licencias-datos.md            <- NUEVO
-      Licencias de datos y pesos, verificadas una por una.
-
-  docs/planeacion/proceso-de-desarrollo.md
-      COMO se pasa del diseno al producto. Las 8 etapas.
-
-  docs/superpowers/plans/2026-07-22-caminata-esqueletica.md
-      El plan ya ejecutado. Se conserva como se escribio.
-
-  docs/planeacion/antecedente-m14.md
-      De donde salio la idea.
+Las fotos van junto a su ficha, con el mismo nombre:
+    corpus/nivel-1/C1-1.jpg   junto a   corpus/nivel-1/C1-1.verdad.json
+El .gitignore ya esta puesto: se versiona la verdad, no las imagenes.
 
 
 -------------------------------------------------------------------------------
-  5. COMO RETOMAR
+  4. COMO SEGUIR, EN ORDEN
+-------------------------------------------------------------------------------
+
+  1. DIBUJAR al menos las cuatro de C1 y fotografiarlas.
+
+  2. Construir ctex-medir: corre el extractor sobre un corpus y escupe el
+     error POR CONDICION, con C4 aparte, y el error de los puntos rellenos
+     separado del de los medidos (D41, D45). La Seccion 11 lo exige como
+     comando, porque "si medir es trabajoso, no se mide".
+
+  3. Con eso sale el VEREDICTO DE I1a, que es la pregunta que decide si el
+     proyecto sigue.
+
+  4. Segun el veredicto, lo que falta del extractor tiene su propio plan:
+       - rectificacion (D40), que hoy no existe. Entra con el nivel 0
+       - cierre morfologico, rellenos y dudas (D45)
+       - deteccion de saltos (D47)
+       - calibrar los umbrales de fallo de D47, que hoy son conjeturas
+
+Si prefieres no depender de las fotos todavia, el paso 2 se puede construir y
+probar entero contra el nivel -1, que ya se genera solo.
+
+
+-------------------------------------------------------------------------------
+  5. LO QUE SE DECIDIO ESTA SESION (D34 a D48)
+-------------------------------------------------------------------------------
+
+Quince decisiones. Estan completas en docs/planeacion/notas-plan.md; aqui solo
+para ubicarlas.
+
+  D34  La escala se teclea. El clasificador de digitos no entra en la fase 1
+  D35  Escalera de cuatro niveles, con un nivel -1 sintetico nuevo
+  D36  Alcance: una sola curva
+  D37  La entrada es un recorte que ya es la grafica
+  D38  Rastreo por barrido de columnas  -> REVOCA la excepcion de C++ de D11
+  D39  Entrega en dos comandos encadenables mas ctex-medir
+  D40  La rectificacion del recorte es del extractor, y sale de sus ejes
+  D41  Corpus del nivel 1: 24 graficas, 6 condiciones x 4
+  D42  La plantilla del material acota D16
+  D43  El extractor devuelve contrato Y traza
+  D44  La confianza de la fase 1 es un marcador de posicion (0.5)
+  D45  Los huecos: cerrar, rellenar marcado, no extrapolar
+  D46  La forma del documento del extractor  -> deja la deuda de origen.pagina
+  D47  El extractor no degrada: para  -> EXCEPCION a D18
+  D48  El material no lleva leyenda, y el criterio se mide entero
+
+Las cinco primeras se llamaban F1..F5 y vivian sueltas en este archivo. Ya no:
+estan en el registro. La correspondencia esta anotada ahi.
+
+
+-------------------------------------------------------------------------------
+  6. LAS DOS LECCIONES CARAS, QUE VAN A VOLVER
+-------------------------------------------------------------------------------
+
+  UNA ORDEN INCOMPLETA PRODUCE TRABAJO CORRECTO E INSERVIBLE.
+  Una tarea decia "PDF -> PNG" y nunca dijo RECORTAR. Salio una hoja carta
+  completa con pie de figura y numero de pagina, que incumplia D37. Quien la
+  ejecuto hizo exactamente lo pedido. Revisar la orden contra las decisiones
+  ANTES de despacharla.
+
+  MEDIR SOLO LA MEDIANA NO ES MEDIR DE MENOS: ES MEDIR LA PARTE QUE NUNCA IBA
+  A FALLAR.
+  La prueba de la caminata comprobaba la mediana y pasaba en verde con 0.31%,
+  mientras 3 de 11 puntos fallaban con casi 20%. La causa era la leyenda de
+  pgfplots, que vive DENTRO de la caja de los ejes y jalaba el centroide.
+  Cualquier criterio con dos partes se codifica con las dos.
+
+
+-------------------------------------------------------------------------------
+  7. EL ENTORNO, PARA NO REDESCUBRIRLO
 -------------------------------------------------------------------------------
 
     cd "D:\Codigo Abierto\C-tex"
     .venv\Scripts\activate
-    python -m pytest                  # deben pasar 89
+    python -m pytest                  # deben pasar 148
 
-    ctex tests/datos/hoja_ejemplo.json --salida ./salida
+    python -m ctex.material.generar --cuantas 3 --semilla 1 --salida .\salida\x
 
-Tectonic 0.16.9 esta instalado en C:\Users\aldo-\bin, y esa carpeta ya esta
-en el PATH de usuario. Si `tectonic --version` no responde, abrir una
-terminal nueva: el PATH se actualizo en esta maquina el 2026-07-25.
+  HERRAMIENTAS, todas ya instaladas y en el PATH:
+    tectonic  0.16.9   C:\Users\aldo-\bin\tectonic.exe
+                       NO esta en winget; el de chocolatey es 0.3.2, anterior
+                       a --untrusted. Se instalo el binario oficial
+    pdftoppm           viene con MiKTeX, en
+                       %LOCALAPPDATA%\Programs\MiKTeX\miktex\bin\x64
+    numpy, opencv-python-headless      ya en pyproject.toml
 
-OJO: las pruebas que compilan se SALTAN solas si no encuentran Tectonic. Si
-ves "skipped" en vez de "passed", no es que pasen: es que no corrieron.
+  Las pruebas que compilan SE SALTAN SOLAS si no encuentran tectonic o
+  pdftoppm. Un "skipped" no es un "passed".
 
+  EL CHALAN. Antigravity (agy) escribe el codigo; Claude hace de arquitecto,
+  redacta la orden, verifica y reporta. Lo que costo una vuelta cada uno:
 
--------------------------------------------------------------------------------
-  6. AQUI ME QUEDE: DISENANDO LA FASE 1 (a medias)
--------------------------------------------------------------------------------
+    - `--print` toma el prompt COMO SU VALOR. Va al final, o se traga los
+      flags siguientes y el prompt se pierde en silencio.
+    - Claude Code BLOQUEA despachar agy con --mode accept-edits o
+      --dangerously-skip-permissions. Lo ejecuta Aldo con `!`. La orden vive
+      en C:\Users\aldo-\orden-agy.txt. El comando:
 
-Se empezo el diseno del EXTRACTOR DE GRAFICAS (imagen -> contrato), que es
-lo que responde I1. La sesion se corto a media conversacion de diseno.
+        cd "D:\Codigo Abierto\C-tex"; & "$env:LOCALAPPDATA\agy\bin\agy.exe" `
+          --print-timeout 25m --sandbox --dangerously-skip-permissions `
+          --model gemini-3.1-pro-high `
+          --print (Get-Content -Raw "$env:USERPROFILE\orden-agy.txt")
 
-OJO: las cinco decisiones de abajo estan tomadas y confirmadas una por una,
-pero TODAVIA NO ESTAN en notas-plan.md ni en ninguna especificacion. Viven
-solo en este archivo. Al retomar hay que pasarlas a su lugar.
-
-LO QUE YA SE DECIDIO
-
-  F1  La escala se teclea; el clasificador de digitos NO entra en la fase 1.
-      Motivo: I1 en realidad son dos preguntas de peso muy distinto.
-          I1a  ?el rastreo es preciso?  -> si falla, no hay proyecto
-          I1b  ?se lee la escala sola?  -> si falla, el usuario teclea.
-                                           Es friccion, no muerte.
-      Los criterios 1 y 2 de la Seccion 11 (error mediano <2%, ninguno >5%)
-      se miden con la escala dada. El criterio 3 (escala leida bien en >95%)
-      es I1b y espera. D13 ya obliga a confirmar la escala de todas formas.
-
-  F2  Material de prueba: ESCALERA DE CUATRO NIVELES. Se agrega un nivel -1
-      sintetico que no estaba en la especificacion:
-
-          -1  Nuestro propio motor genera gráficas de pgfplots con datos
-              exactos, se compila y se rasteriza el PDF. Verdad perfecta,
-              cantidad ilimitada, cero trabajo manual. Corre en cada cambio.
-           0  Esas mismas, impresas y fotografiadas -> aisla la camara
-           1  Dibujadas a mano copiando datos elegidos -> AQUI se responde I1a
-           2  Las reales de los cuadernos
-
-      El motor de salida se vuelve el generador de material del motor de
-      entrada. Pero el nivel -1 NO responde I1a: solo el nivel 1 lo hace, y
-      ese hay que dibujarlo a mano. Falta decidir cuantas.
-
-  F3  Alcance: UNA SOLA CURVA, ejes rectos, con o sin rejilla. Fuera por
-      ahora: varias curvas, dispersion y barras. Motivo: dos curvas que se
-      cruzan es un problema distinto —separacion de curvas— y contamina la
-      medicion de I1a con una dificultad que no es la que se mide.
-
-  F4  Entrada: UN RECORTE QUE YA ES LA GRAFICA. Localizarla dentro de una
-      hoja con texto (etapa 2, segmentacion) SALE de la fase 1 y tendra su
-      propia fase.
-      >>> Esto REVISA lo escrito, que metia las etapas 1, 2 y 3 en la fase 1.
-          Anotarlo como decision cuando se escriba el diseno.
-
-  F5  Rastreo: BARRIDO POR COLUMNAS con centroide de la tinta, no
-      seguimiento secuencial. Es una operacion sobre el arreglo completo:
-      vectorizada, en milisegundos, SIN C++ y sin bucle por pixel.
-      >>> Esto REVISA la estrategia de lenguajes, que reservaba el
-          rastreador como el unico lugar donde entraria C++ con pybind11.
-          Anotarlo como decision.
-      Donde se rompe, sabido de antemano: tramos casi verticales (una
-      columna con mucha tinta deja el centroide en medio de un salto) y
-      curvas que se doblan hacia atras, tipo histeresis, donde hay dos
-      valores para la misma x. Lo segundo no tiene arreglo con este metodo.
-      Si la medicion lo tumba, se pasa al secuencial sabiendo por que.
-
-LA PREGUNTA EXACTA DONDE SE CORTO
-
-  Como se entrega la fase 1. Estaban sobre la mesa tres formas y la
-  recomendacion era la A, faltaba el visto bueno:
-
-    A (recomendada)  Dos comandos encadenables, con el contrato de frontera:
-
-        ctex-extraer recorte.png --escala-x 0,10 --escala-y -1,1 \
-                     --salida hoja.json
-        ctex hoja.json --salida ./salida
-
-        Mas un tercer comando `ctex-medir` que corre la suite de I1a sobre
-        un corpus y escupe los numeros. La Seccion 11 lo exige: "si medir
-        es trabajoso, no se mide".
-
-        Razon de fondo: el contrato ya tiene validador y 89 pruebas. Como
-        frontera dura, el extractor tiene un blanco contra el cual entregar
-        y lo que produzca mal se caza el primer dia.
-
-    B  Un solo comando de imagen a PDF. Mas lucido, pero repega dos motores
-       que D2 separo, y un fallo de extraccion se ve igual que uno de
-       composicion.
-
-    C  Solo biblioteca y suite de medicion, sin comando. Lo mas rapido para
-       responder I1a y nada mas; deja el extractor sin forma de usarse.
-
-COMO SEGUIR, EN ORDEN
-
-    1. Contestar esa pregunta (A, B o C).
-    2. Presentar el diseno por secciones y aprobarlo seccion por seccion:
-       arquitectura, componentes, flujo de datos, errores y pruebas.
-    3. Escribir la especificacion en
-       docs/superpowers/specs/2026-07-25-extractor-graficas-design.md
-    4. Pasar F1..F5 al registro de decisiones, con las dos revisiones
-       marcadas arriba (F4 y F5) escritas como decisiones que revocan.
-    5. De ahi sale el plan de implementacion, como se hizo con la caminata.
-
-    Si retomas con Claude, basta decirle:
-        "Lee SIGUIENTE-SESION.txt y sigue el diseño de la fase 1 desde
-         donde se corto"
-
--------------------------------------------------------------------------------
-  6b. EL OTRO CAMINO, POR SI SE PREFIERE
--------------------------------------------------------------------------------
-
-  CICLO DE REPARACION (D17). Reparaciones deterministas, reintento y
-  degradacion por bloque. Mejora sobre el camino que ya existe y funciona.
-  Mas chico y mucho menos incierto que la fase 1, pero no responde ninguna
-  incognita.
-
-  Tambien pendiente, sin urgencia:
-      - El nombre. C-tex esta descartado (se lee como el lenguaje C).
-        Finalistas: Scan2PDF y SnapTeX. Veredicto pendiente.
-        Repositorio remoto: github.com/AldoZM/Notebook-Latex
-      - Precios y planes: reabiertos casi por completo. Solo sobrevive que
-        la cuota se mide en PAGINAS, no en documentos.
+    - SE PASA DEL ALCANCE. Dos de dos veces ignoro el limite del lote. Elegir
+      cortes donde eso no importe, en vez de confiar en la instruccion.
+    - NO REVISAR EL REPOSITORIO MIENTRAS CORRE: se ve vacio y parece que
+      fallo. Comprobar con  Get-Process -Name agy  antes de concluir nada.
+    - Por lo demas cumple: copia el codigo del plan, no ablanda las pruebas
+      para que pasen, y respeta las restricciones estructurales.
 
 
 -------------------------------------------------------------------------------
-  7. RECORDATORIOS
+  8. LOS ARCHIVOS DEL PROYECTO
 -------------------------------------------------------------------------------
 
-    - Cuando el codigo contradiga al diseno, gana el codigo, pero se anota:
-      decision nueva que revoca la vieja, con su motivo. NO se edita el
-      pasado. D31 y D32 son el ejemplo de esta sesion.
+  MAPA-DEL-PROCESO.txt
+      Como se trabaja, con diagramas. El lazo de una decision, el embudo de
+      pregunta a codigo, y el mapa de que documento contesta que pregunta.
 
-    - Una lista blanca solo es tan buena como su analizador. Al escribir
-      pruebas de seguridad, preguntarse no solo que comandos son
-      peligrosos, sino de cuantas formas se puede escribir el mismo
-      comando.
+  README.md
+      Portada.
 
-    - Correccion util para la fase 1: el criterio de exito de I1 YA ESTA
-      definido en la Seccion 11 (error mediano <2% del rango, ninguno >5%,
-      escala bien en >95%). No hay que inventarlo. Lo que falta es el
-      material con verdad conocida para medirlo.
+  docs/superpowers/specs/2026-07-21-motor-conversion-latex-design.md
+      QUE es el motor. 15 secciones.
+
+  docs/superpowers/specs/2026-07-26-extractor-graficas-design.md      NUEVO
+      QUE es el extractor. 10 secciones, con los numeros por calibrar juntos
+      en la seccion 9 para que nadie los confunda con resultados.
+
+  docs/planeacion/notas-plan.md
+      POR QUE es asi. 48 decisiones con columna de estado.
+
+  docs/planeacion/r4-licencias-datos.md
+      Licencias de datos y pesos, verificadas una por una.
+
+  docs/planeacion/proceso-de-desarrollo.md
+      Las ocho etapas, de diseno a producto.
+
+  docs/superpowers/plans/                 los planes ya ejecutados
+      2026-07-22-caminata-esqueletica.md
+      2026-07-26-generador-nivel-menos-1.md
+      2026-07-26-caminata-del-extractor.md
+
+  corpus/nivel-1/                         las 24 fichas y como dibujarlas
+
+
+-------------------------------------------------------------------------------
+  9. LO QUE SIGUE PENDIENTE, SIN URGENCIA
+-------------------------------------------------------------------------------
+
+    - EL NOMBRE. C-tex esta descartado: se lee como el lenguaje C.
+      Finalistas Scan2PDF y SnapTeX. Veredicto pendiente.
+      Repositorio remoto: github.com/AldoZM/Notebook-Latex
+    - Precios y planes: reabiertos casi por completo. Solo sobrevive que la
+      cuota se mide en PAGINAS, no en documentos.
+    - El ciclo de reparacion de D17, que mejora el camino que ya funciona.
+    - La resolucion del nivel -1 sigue en 200 ppp. Subirla es una perilla que
+      ya existe; no se decidio si hace falta.
+    - Cracking the Coding Interview esta en la carpeta, ignorado por git.
+      Aldo declaro que sacarlo en limpio es un objetivo del proyecto.
 
 ===============================================================================
