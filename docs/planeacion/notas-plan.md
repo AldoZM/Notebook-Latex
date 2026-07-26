@@ -64,6 +64,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D42 | La plantilla del material es una excepción acotada a D16 | acota D16 |
 | D43 | El extractor devuelve contrato **y traza** | |
 | D44 | La confianza de la fase 1 es un marcador de posición declarado | |
+| D45 | Los huecos del barrido: cerrar, rellenar marcado, no extrapolar | precisa D38 |
 
 ---
 
@@ -671,6 +672,48 @@ vea sabe de inmediato que ahí todavía no hay medición.
 
 Cuando llegue la fase 2, ese valor se reemplaza por la confianza geométrica de
 D15 y esta decisión queda revocada por la que la construya.
+
+### D45 — Los huecos del barrido: cerrar, rellenar marcado, no extrapolar
+
+Un **hueco** es una columna sin un solo píxel de tinta: el centroide de D38 sale
+de una división entre cero y no hay valor.
+
+**Precisión sobre D38, que conviene fijar porque las dos fallas se confunden.**
+D38 anotó que los tramos casi verticales dejan "el centroide en medio de un
+salto". Eso **no es un hueco, es lo contrario**: sobra tinta en una columna. Y es
+la peor de las dos, porque un hueco se ve —no hay valor— mientras que un salto
+entrega un número creíble y falso. Detectar saltos —una columna con mucha más
+tinta que sus vecinas— es un problema aparte y no lo resuelve el remuestreo.
+
+Los huecos se tratan en tres capas:
+
+**1. Los extremos no se tocan.** Si la curva no llega al borde de la caja, ahí no
+hay curva. Rellenar sería extrapolar, o sea inventar trazo donde nunca lo hubo.
+Solo los huecos **interiores** son candidatos.
+
+**2. El mejor relleno es no producirlos.** El hueco interior más común no lo hace
+la pluma: lo hace el paso 4 al borrar la rejilla, que donde la curva la cruza con
+tono parecido se lleva las dos y deja un corte de uno o dos píxeles. Se corrige
+con un **cierre morfológico en `tinta.py`** —dilatar y erosionar— antes de barrer.
+Sella el corte sin mover la geometría del trazo, porque las dos operaciones se
+cancelan en todo lo demás. Interpolar ese hueco sería tapar un defecto propio con
+datos inventados; cerrarlo es no generarlo.
+
+**3. Lo que sobreviva se rellena, pero marcado.** Interpolación **lineal** entre
+los dos vecinos —no spline, que puede sobrepasar e inventar curvatura donde no la
+había; sobre huecos angostos las dos difieren en menos de un píxel—, y **por cada
+relleno se emite una `duda` de tipo `punto_incierto`** apuntando a la región.
+
+Esto último disuelve la disyuntiva entre "serie completa" y "serie honesta": el
+mecanismo ya existe en el contrato y está probado. La serie sale usable y el
+punto inventado queda distinguible del medido, con la región exacta para ir a
+mirarla en la imagen.
+
+**El umbral se mide, no se opina.** Se arranca rellenando huecos interiores de
+hasta el 1% del ancho de la gráfica, como parámetro y no como constante. Y como
+el nivel −1 tiene verdad perfecta, `ctex-medir` reporta **por separado el error
+de los puntos medidos y el de los rellenos**: si los rellenos salen mucho peores,
+el umbral se baja con números en la mano.
 
 ---
 
