@@ -11,7 +11,8 @@ tenga que volver a recorrer lo ya recorrido.
 - **Inicio:** 2026-07-21
 - **Última revisión:** 2026-07-26 — D34–D40 integran al registro las decisiones
   de la fase 1, que vivían sueltas en la nota de continuidad. D40 cierra el
-  hueco que D37 había dejado abierto sobre la normalización
+  hueco que D37 había dejado abierto sobre la normalización. D41 dimensiona el
+  corpus del nivel 1 y D42 acota D16 tras construir el generador del nivel −1
 
 ---
 
@@ -60,6 +61,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D39 | La fase 1 se entrega como dos comandos encadenables | F6 |
 | D40 | La rectificación del recorte es del extractor | F7, parte la etapa 1 |
 | D41 | El corpus del nivel 1: 24 gráficas, seis condiciones por cuatro | |
+| D42 | La plantilla del material es una excepción acotada a D16 | acota D16 |
 
 ---
 
@@ -376,6 +378,7 @@ porque la nota de continuidad las nombra con la letra F.
 | D39 | F6 | Dos comandos encadenables |
 | D40 | F7 | La rectificación es del extractor |
 | D41 | — | El corpus del nivel 1 |
+| D42 | — | La plantilla del material acota D16 |
 
 ### D34 — La escala se teclea; el clasificador de dígitos no entra en la fase 1
 
@@ -592,6 +595,38 @@ dejaría la frontera sin medir y alguien la descubriría más tarde con una grá
 de cliente. Medirla y excluirla del veredicto **la vuelve un número conocido en
 vez de una sorpresa**. Si algún día C4 tiene que funcionar, el corpus para
 evaluar el método que la resuelva ya está dibujado.
+
+### D42 — La plantilla del material es una excepción acotada a D16
+
+**Sale de un conteo, no de una discusión.** Después de construir el generador
+del nivel −1 hay dos archivos de plantilla en el código:
+
+```
+src/ctex/composicion/plantilla.py    artículo, para el producto
+src/ctex/material/plantilla.py       standalone, para el material de prueba
+```
+
+D16 dice *"una sola plantilla en la v1"*. Leído al pie de la letra, el código la
+contradice.
+
+**No es una contradicción real:** D16 decide cómo se ve el documento que recibe
+el usuario. La segunda plantilla nunca produce un documento para nadie — fabrica
+imágenes de prueba, y existe porque D37 exige que la entrada del extractor sea un
+recorte que ya es la gráfica. Con la plantilla de artículo, la página salía carta
+completa, con la gráfica en el tercio superior, pie de figura y número de página.
+Con `standalone`, la página *es* la gráfica.
+
+**D16 no se revoca: se acota a lo que siempre quiso decir.** Una sola plantilla
+de salida de producto. Las plantillas internas del banco de pruebas no cuentan, y
+tampoco aparecen en ninguna salida que vea un usuario.
+
+**Por qué se escribe esto en vez de darlo por obvio.** Sin esta nota, quien abra
+el registro dentro de dos meses lee "una sola plantilla", cuenta dos en el código
+y tiene que elegir entre reconstruir el razonamiento o concluir que D16 se
+incumplió en silencio. Lo segundo es lo caro: si una decisión resultó ser mentira,
+el lector deja de confiar en el registro entero. Es la misma lección que dejaron
+D34–D38 al vivir sueltas en la nota de continuidad — el costo no se paga cuando se
+omite, se paga cuando alguien vuelve.
 
 ---
 
