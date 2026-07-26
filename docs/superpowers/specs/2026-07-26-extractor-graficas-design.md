@@ -80,9 +80,9 @@ Un módulo por paso, más el que los encadena. Cada uno se prueba por separado.
 
 | Módulo | Recibe | Devuelve | Depende de |
 |---|---|---|---|
-| `marco.py` | imagen | dos rectas | OpenCV |
-| `rectificacion.py` | imagen + dos rectas | imagen enderezada + rectas nuevas | OpenCV |
-| `escala.py` | rectas + los dos rangos | transformación píxel→valor | nada |
+| `marco.py` | imagen | **caja** (4 bordes) + rectas | OpenCV |
+| `rectificacion.py` | imagen + rectas | imagen enderezada + caja nueva | OpenCV |
+| `escala.py` | **caja** + los dos rangos | transformación píxel→valor | nada |
 | `tinta.py` | imagen + rectas | máscara booleana de la curva | OpenCV, NumPy |
 | `rastreo.py` | máscara | pares (columna, fila) **+ máscara de validez** | **solo NumPy** |
 | `remuestreo.py` | puntos en valores + validez | 20–50 puntos + dudas | NumPy |
@@ -100,13 +100,22 @@ archivos.
 ### Tipos que cruzan las fronteras
 
 ```
-Recta            rho, theta          forma de Hough, no dos puntos
-Transformacion   escala_x, escala_y, origen_x, origen_y
-Traza            rectas, transformacion, barrido_crudo, puntos_finales
+Recta            rho, theta                       forma de Hough, no dos puntos
+Caja             izquierda, derecha, arriba, abajo   en pixeles
+Transformacion   escala_x, escala_y, izquierda, arriba
+Traza            caja, transformacion, barrido_crudo, validez, puntos_finales
 ```
 
 `Recta` en forma de Hough porque es lo que devuelve OpenCV y porque el ángulo
 —que es lo que necesita `rectificacion`— se lee directo, sin arcotangentes.
+
+**`Caja` es la pieza que hace posible la escala, y merece decirse aparte.** Dos
+rectas infinitas dicen *dónde están los ejes*, pero no dicen qué píxel es `xmin`
+ni cuál es `xmax`, así que por sí solas no determinan ninguna transformación. Lo
+que ancla la escala son los **cuatro bordes del área de la gráfica**: el borde
+izquierdo vale `xmin`, el derecho `xmax`, el inferior `ymin` y el superior
+`ymax`. Esa es también la convención que se le pide al usuario cuando teclea la
+escala (D34): los rangos son los de la caja dibujada, no los de la curva.
 
 Imágenes como arreglos de NumPy; puntos como listas de pares; el contrato como
 diccionario.
@@ -119,19 +128,44 @@ despliegue, pero la pila de la especificación del motor ya las nombraba.
 
 ## 4. Los componentes
 
-### `marco.py` — encontrar los ejes
+### `marco.py` — encontrar la caja
 
-Binarizar y aplicar **transformada de Hough** buscando segmentos largos. De los
-que salgan, quedarse con dos: el más largo cercano a la horizontal y el más largo
-cercano a la vertical.
+Binarizar y aplicar **transformada de Hough**. De las rectas que salgan, separar
+las cercanas a la horizontal de las cercanas a la vertical, y quedarse con las
+**cuatro extremas**: la vertical de más a la izquierda y la de más a la derecha,
+la horizontal de más arriba y la de más abajo. Esas cuatro son la caja.
+
+Hough devuelve las rectas ordenadas por votos, y los votos son proporcionales a
+la longitud del trazo, así que "la más votada" equivale a "la más larga" sin
+tener que medirla.
+
+Con solo dos ejes en forma de L —sin recuadro completo— los otros dos bordes se
+toman de la extensión de la tinta. La caja sigue quedando definida.
 
 **Riesgo conocido:** con rejilla densa (condición C2 de D41) las líneas de
 rejilla pueden ser tan largas como los ejes. Las desempata el grosor. Si eso no
 basta, el respaldo es quedarse con las dos rectas **extremas** —la de más abajo y
 la de más a la izquierda—, que es donde están los ejes por definición.
 
-Si no aparecen dos rectas, para (D47, código 3). Es el modo de fallo bueno:
+Si no se puede formar la caja, para (D47, código 3). Es el modo de fallo bueno:
 ruidoso.
+
+### `escala.py` — de la caja a la transformación
+
+Aritmética, sin visión:
+
+```
+escala_x = (xmax - xmin) / (derecha - izquierda)
+escala_y = (ymax - ymin) / (abajo - arriba)
+
+valor_x = xmin + (columna - izquierda) * escala_x
+valor_y = ymax - (fila    - arriba)    * escala_y
+```
+
+El eje Y va restando porque en una imagen la fila 0 está **arriba**, mientras que
+en la gráfica el valor mayor está arriba. Invertir ese signo es el error más
+fácil de cometer aquí y el más difícil de ver: produce una curva reflejada que
+sigue pareciendo una curva.
 
 ### `rectificacion.py` — enderezar con los propios ejes
 
