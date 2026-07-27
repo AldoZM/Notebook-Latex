@@ -135,6 +135,33 @@ def test_el_margen_sale_del_cuerpo():
     assert margen_del_cuerpo([pagina_de(cuerpo)]) == pytest.approx(MARGEN)
 
 
+def test_una_pagina_de_diagrama_no_arrastra_el_margen_de_otra():
+    # El fallo que se descubrio al procesar cinco paginas en vez de una: las
+    # paginas 41 y 42 de CtCI son diagramas de flujo con cajas repartidas por
+    # todo el ancho, margenes de 250 y 277. Con la mediana global, el titulo de
+    # la pagina 40 quedaba a 42 puntos de "su" margen y se perdia.
+    #
+    # Sintoma peligroso: procesar MAS paginas empeoraba el resultado.
+    texto = pagina_de(
+        Bloque([linea("Additionally, for US positions", 46.4)]),
+        Bloque([linea("Beware of (Potential) Stigma", 80.0, alto=TITULO)]),
+        Bloque([linea("Certain languages have stigmas", 100.0)]),
+    )
+    diagrama = pagina_de(
+        Bloque([linea("Expand Network.", 300.0, x0=398.6)]),
+        Bloque([linea("Build projects.", 320.0, x0=250.9)]),
+        Bloque([linea("Learn Big O.", 340.0, x0=277.3)]),
+    )
+
+    solo = [p.tipo for p in clasificar([texto])]
+    con_diagrama = [p.tipo for p in clasificar([texto, diagrama])]
+
+    assert solo[:3] == ["parrafo", "titulo", "parrafo"]
+    assert con_diagrama[:3] == solo[:3], (
+        "agregar una pagina de diagrama no debe cambiar como se clasifica otra"
+    )
+
+
 def test_una_pagina_sin_cuerpo_no_revienta():
     solo_encabezado = Bloque([linea("IV I Before the Interview", 12.4)])
     assert clasificar([pagina_de(solo_encabezado)]) == []

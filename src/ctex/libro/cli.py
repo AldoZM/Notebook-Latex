@@ -12,6 +12,7 @@ Codigos de salida, con la convencion del resto del motor:
 import argparse
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 from ctex.libro.contrato import a_contrato
@@ -76,11 +77,9 @@ def main(argv: list[str] | None = None) -> int:
         json.dumps(documento, indent=2, ensure_ascii=False), encoding="utf-8"
     )
 
-    titulos = sum(1 for p in partes if p.tipo == "titulo")
-    print(
-        f"{argumentos.salida}  "
-        f"({len(partes)} bloques: {titulos} titulos, {len(partes) - titulos} parrafos)"
-    )
+    cuenta = Counter(parte.tipo for parte in partes)
+    detalle = ", ".join(f"{cuantos} {tipo}" for tipo, cuantos in sorted(cuenta.items()))
+    print(f"{argumentos.salida}  ({len(partes)} bloques: {detalle})")
     return 0
 
 

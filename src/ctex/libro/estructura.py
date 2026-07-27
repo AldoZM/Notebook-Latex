@@ -107,7 +107,24 @@ def altura_del_cuerpo(paginas: list[Pagina]) -> float:
 
 
 def margen_del_cuerpo(paginas: list[Pagina]) -> float:
-    """Donde empieza el texto corrido, en puntos desde el borde izquierdo."""
+    """Donde empieza el texto corrido, en puntos desde el borde izquierdo.
+
+    OJO: esto se mide POR PAGINA, al reves que `altura_del_cuerpo`. No es una
+    inconsistencia, es que las dos cosas viven en escalas distintas:
+
+        la tipografia es del LIBRO      -> se mide sobre todas las paginas
+        el margen es de la PAGINA       -> se mide sobre una
+
+    Medido en CtCI: la pagina 40 es texto corrido y su margen es 110.9; las
+    paginas 41 y 42 son diagramas de flujo con cajas repartidas por todo el
+    ancho, y sus margenes son 250.3 y 277.3. Juntando las cinco, la mediana se
+    va a 150.2 y el titulo real de la pagina 40 —que empieza en 108.2— queda a
+    42 puntos de un margen que no es el suyo.
+
+    El sintoma era el peor posible: procesar MAS paginas empeoraba el
+    resultado. Con la pagina 40 sola el titulo se detectaba; con las cinco, se
+    perdia.
+    """
     margenes = [
         bloque.x0
         for pagina in paginas
@@ -142,11 +159,13 @@ def es_titulo(bloque: Bloque, texto: str, cuerpo: float, margen: float) -> bool:
 
 def clasificar(paginas: list[Pagina]) -> list[Parte]:
     """Convierte las paginas en una lista de titulos, parrafos y tablas."""
+    # La tipografia es del libro y se mide sobre todo el rango; el margen es de
+    # cada pagina y se mide dentro del bucle. Ver `margen_del_cuerpo`.
     cuerpo = altura_del_cuerpo(paginas)
-    margen = margen_del_cuerpo(paginas)
     partes: list[Parte] = []
 
     for pagina in paginas:
+        margen = margen_del_cuerpo([pagina])
         # Las tablas se buscan a nivel de LINEA y no de bloque, porque
         # pdftotext mete las filas alineadas dentro del bloque del parrafo
         # anterior. Confiar en su agrupacion aqui perderia la tabla entera.
