@@ -10,6 +10,12 @@ import statistics
 from dataclasses import dataclass
 
 from ctex.libro.paginas import Bloque, Pagina
+from ctex.libro.tablas import (
+    a_filas_de_texto,
+    detectar_tablas,
+    es_adorno,
+    lineas_de,
+)
 
 # Fraccion de la pagina, arriba y abajo, donde vive lo corrido: encabezado,
 # pie y folio.
@@ -48,9 +54,12 @@ TOLERANCIA_MARGEN = 20.0
 class Parte:
     """Un trozo del documento, ya clasificado."""
 
-    tipo: str  # "titulo" o "parrafo"
-    texto: str
+    tipo: str  # "titulo", "parrafo" o "tabla"
+    texto: str = ""
     nivel: int = 2
+    # Solo para las tablas. Tupla y no lista para que Parte siga siendo
+    # inmutable y comparable, que es lo que hace faciles las pruebas.
+    filas: tuple[tuple[str, ...], ...] = ()
 
 
 def _unir(bloque: Bloque) -> str:
@@ -132,26 +141,74 @@ def es_titulo(bloque: Bloque, texto: str, cuerpo: float, margen: float) -> bool:
 
 
 def clasificar(paginas: list[Pagina]) -> list[Parte]:
-    """Convierte las paginas en una lista de titulos y parrafos."""
+    """Convierte las paginas en una lista de titulos, parrafos y tablas."""
     cuerpo = altura_del_cuerpo(paginas)
     margen = margen_del_cuerpo(paginas)
     partes: list[Parte] = []
 
     for pagina in paginas:
+        # Las tablas se buscan a nivel de LINEA y no de bloque, porque
+        # pdftotext mete las filas alineadas dentro del bloque del parrafo
+        # anterior. Confiar en su agrupacion aqui perderia la tabla entera.
+        #
+        # Y se les pasan solo las lineas del cuerpo. Filtrar despues no sirve:
+        # una racha que empieza en el encabezado y baja al cuerpo ya mezclo las
+        # dos cosas y no hay como separarlas mirando el resultado.
+        # Los adornos se quitan aqui y no solo en la deteccion de tablas: una
+        # raya del margen que el OCR leyo como "I" forma su propio bloque de una
+        # linea, y como su caja no mide como la del cuerpo, se clasificaba como
+        # titulo. Salian secciones fantasma llamadas "I".
+        del_cuerpo = [
+            linea
+            for bloque in pagina.bloques
+            if not es_corrido(bloque, pagina)
+            for linea in bloque.lineas
+            if not es_adorno(linea)
+        ]
+        tablas = detectar_tablas(pagina, del_cuerpo)
+        consumidas = lineas_de(tablas)
+
+        # Se acumula con la `y` de cada parte para devolverlas en el orden en
+        # que aparecen en la pagina: las tablas se detectan aparte de los
+        # bloques y sin esto saldrian todas juntas al final.
+        ubicadas: list[tuple[float, Parte]] = []
+
+        for tabla in tablas:
+            ubicadas.append((
+                tabla[0][0].y0,
+                Parte(
+                    tipo="tabla",
+                    filas=tuple(tuple(fila) for fila in a_filas_de_texto(tabla)),
+                ),
+            ))
+
         for bloque in pagina.bloques:
             if es_corrido(bloque, pagina):
                 # Encabezado, pie o numero de pagina: no son del documento,
                 # son del libro impreso. Se descartan.
                 continue
 
-            texto = _unir(bloque)
+            # Lo que ya se llevo una tabla no vuelve a salir como parrafo, y
+            # los adornos no salen nunca.
+            restantes = [
+                l for l in bloque.lineas
+                if l not in consumidas and not es_adorno(l)
+            ]
+            if not restantes:
+                continue
+            limpio = Bloque(restantes)
+
+            texto = _unir(limpio)
             if not texto:
                 continue
 
-            partes.append(
+            ubicadas.append((
+                limpio.y0,
                 Parte(tipo="titulo", texto=texto, nivel=2)
-                if es_titulo(bloque, texto, cuerpo, margen)
-                else Parte(tipo="parrafo", texto=texto)
-            )
+                if es_titulo(limpio, texto, cuerpo, margen)
+                else Parte(tipo="parrafo", texto=texto),
+            ))
+
+        partes.extend(parte for _, parte in sorted(ubicadas, key=lambda par: par[0]))
 
     return partes

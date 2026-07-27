@@ -14,11 +14,16 @@ def a_contrato(partes: list[Parte], archivo: Path, pagina: int) -> dict:
     """Arma el documento del contrato a partir de las partes clasificadas."""
     bloques = []
     for indice, parte in enumerate(partes, start=1):
-        contenido = (
-            {"nivel": parte.nivel, "texto": parte.texto}
-            if parte.tipo == "titulo"
-            else {"texto": parte.texto}
-        )
+        if parte.tipo == "titulo":
+            contenido = {"nivel": parte.nivel, "texto": parte.texto}
+        elif parte.tipo == "tabla":
+            # Sin encabezado: de la geometria no se puede saber si la primera
+            # fila es titulo de columna o un dato mas, y marcarla de mas seria
+            # inventar. Si el compositor no recibe encabezado, no dibuja regla
+            # doble.
+            contenido = {"filas": [list(fila) for fila in parte.filas]}
+        else:
+            contenido = {"texto": parte.texto}
         bloques.append(
             {
                 "id": f"b{indice}",
