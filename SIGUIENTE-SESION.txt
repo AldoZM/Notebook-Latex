@@ -12,8 +12,18 @@ Si retomas con Claude, basta decirle:
   1. ESTADO: TODO COMPROMETIDO, NADA PENDIENTE
 -------------------------------------------------------------------------------
 
-Rama: main.  Arbol limpio.  148 pruebas pasando, ninguna saltada.
+Rama: main.  Arbol limpio.  175 pruebas pasando, ninguna saltada.
 48 decisiones registradas (D1 a D48).
+
+HAY DOS FRENTES ABIERTOS Y CONVIENE NO MEZCLARLOS:
+
+    A. CUADERNO MANUSCRITO -> LaTeX     el proyecto original
+    B. LIBRO IMPRESO -> LaTeX           agregado el 2026-07-26
+
+Comparten toda la mitad de atras del motor, del contrato hacia abajo. El frente
+es distinto: A tiene que reconocer trazos, B no reconoce nada porque el texto ya
+viene en la capa del PDF. Las decisiones D1-D48 son de A; B todavia no tiene
+ninguna anotada.
 
 OJO: main va 44 commits adelante de origin/main. NO SE HA EMPUJADO NADA.
 Si quieres publicar, revisa antes que no haya nada que no deba subir.
@@ -35,11 +45,13 @@ Esto es lo nuevo y es grande. La sesion pasada solo existia la mitad de atras.
     src/ctex/compilacion/   Tectonic con --untrusted y limite de 60 s
     src/ctex/material/      genera el material del nivel -1  <- NUEVO
     src/ctex/extraccion/    el extractor de graficas         <- NUEVO
-    tests/                  148 pruebas
+    src/ctex/libro/         PDF impreso al contrato          <- NUEVO
+    tests/                  175 pruebas
 
-Los dos comandos:
+Los tres comandos:
 
     ctex-extraer recorte.png --escala-x 0,10 --escala-y -1,1 --salida hoja.json
+    ctex-libro "libro.pdf" --paginas 40-44 --salida hoja.json
     ctex hoja.json --salida ./salida
 
 EL NUMERO DE LA SESION. Medido contra el nivel -1, que tiene verdad perfecta,
@@ -58,11 +70,59 @@ Prueban que el rastreo NO ESTA ROTO. No prueban que sirva.
 
 
 -------------------------------------------------------------------------------
+  2b. EL FRENTE B: EL LIBRO IMPRESO
+-------------------------------------------------------------------------------
+
+Aldo pidio trabajar con Cracking the Coding Interview, que esta en la raiz del
+repositorio e ignorado por git. Objetivo declarado por el: sacarlo en limpio.
+
+EL HALLAZGO QUE CAMBIA EL PLAN: el PDF SI tiene capa de texto. No es solo
+imagenes. O sea que para el libro no hace falta reconocimiento de ninguna
+clase, y las fases 1, 3 y 4 de D30 son irrelevantes aqui. El camino del libro
+es mucho mas corto que el del cuaderno.
+
+    ctex-libro "Cracking the Coding Interview.pdf" --paginas 40 --salida h.json
+    ctex h.json --salida ./salida
+
+Funciona hoy sobre texto corrido: quita encabezado, pie y folio, separa
+parrafos y reconoce titulos. Probado en las paginas 40 a 44.
+
+TODO SE DECIDE CON GEOMETRIA, NUNCA CON EL CONTENIDO DEL TEXTO. pdftotext
+-bbox-layout conserva la posicion y el tamano de cada linea. Un "if empieza con
+mayuscula" acierta a veces y falla en silencio; la geometria no.
+
+Dos cosas que salieron de medir y no de suponer, y que conviene no volver a
+suponer al reves:
+
+    - EL TITULO ES MAS BAJO QUE EL CUERPO, no mas alto. Medido: 10.82 contra
+      12.06. Va en una sans en negrita cuya caja de glifos es mas corta. Lo que
+      distingue a un titulo no es el tamano sino ser de OTRA tipografia.
+    - El margen de lo corrido estaba en 8% y borraba texto. El encabezado esta
+      al 2.9% y el cuerpo empieza al 6.5%. Ahora esta en 5%.
+
+LO QUE FALTA PARA EL LIBRO COMPLETO:
+
+    1. BLOQUES DE CODIGO Y DE TABLA. Es la mayor parte de CtCI y el contrato
+       v1.0 no los tiene: solo titulo, parrafo, ecuacion y grafica. Esto TOCA
+       EL CONTRATO, o sea una v1.1, y necesita decision explicita.
+    2. Las figuras y diagramas de flujo. La pagina 42 es uno y sale como 44
+       parrafos de una linea. O se saltan, o se recorta la imagen y se incrusta.
+    3. Titulos corridos ("Enterprise Languages:"), que hoy quedan dentro del
+       parrafo. En el original tambien son corridos, asi que puede estar bien.
+    4. Artefactos del OCR original del PDF, como "flaunting.off". No son
+       nuestros y no se arreglan desde aqui.
+
+NINGUNA DECISION DE ESTE FRENTE ESTA EN notas-plan.md todavia. Si el frente B
+sigue, conviene decidir si comparte registro con A o lleva el suyo: son
+productos distintos que comparten motor.
+
+
+-------------------------------------------------------------------------------
   3. AQUI ME QUEDE: HAY QUE DIBUJAR 24 GRAFICAS A MANO
 -------------------------------------------------------------------------------
 
-Es lo unico que bloquea saber si el proyecto vive, y es lo unico del proyecto
-que no puede hacer una maquina.
+Del frente A. Es lo unico que bloquea saber si ESE proyecto vive, y es lo unico
+que no puede hacer una maquina. El frente B no depende de esto.
 
     corpus/nivel-1/COMO-DIBUJARLAS.txt      el procedimiento y las 24 listas
     corpus/nivel-1/C1-1.verdad.json ...     las 24 fichas, ya escritas
@@ -107,6 +167,9 @@ El .gitignore ya esta puesto: se versiona la verdad, no las imagenes.
 
 Si prefieres no depender de las fotos todavia, el paso 2 se puede construir y
 probar entero contra el nivel -1, que ya se genera solo.
+
+Y si prefieres avanzar en el FRENTE B, que no depende de dibujar nada, lo que
+mas rinde es decidir los bloques de codigo y de tabla del contrato (seccion 2b).
 
 
 -------------------------------------------------------------------------------
@@ -244,7 +307,8 @@ estan en el registro. La correspondencia esta anotada ahi.
     - El ciclo de reparacion de D17, que mejora el camino que ya funciona.
     - La resolucion del nivel -1 sigue en 200 ppp. Subirla es una perilla que
       ya existe; no se decidio si hace falta.
-    - Cracking the Coding Interview esta en la carpeta, ignorado por git.
-      Aldo declaro que sacarlo en limpio es un objetivo del proyecto.
+    - El comando ctex siempre escribe "documento.pdf" y lo que cambia es la
+      carpeta de --salida. Es comodo para el motor y confuso para mirar
+      resultados: en un producto el nombre deberia salir del origen.
 
 ===============================================================================
