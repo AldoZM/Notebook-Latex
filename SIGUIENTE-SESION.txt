@@ -12,8 +12,8 @@ Si retomas con Claude, basta decirle:
   1. ESTADO: TODO COMPROMETIDO, NADA PENDIENTE
 -------------------------------------------------------------------------------
 
-Rama: main.  Arbol limpio.  175 pruebas pasando, ninguna saltada.
-48 decisiones registradas (D1 a D48).
+Rama: main.  Arbol limpio.  205 pruebas pasando, ninguna saltada.
+50 decisiones registradas (D1 a D50).  Todo empujado a origin/main.
 
 HAY DOS FRENTES ABIERTOS Y CONVIENE NO MEZCLARLOS:
 
@@ -25,8 +25,10 @@ es distinto: A tiene que reconocer trazos, B no reconoce nada porque el texto ya
 viene en la capa del PDF. Las decisiones D1-D48 son de A; B todavia no tiene
 ninguna anotada.
 
-OJO: main va 44 commits adelante de origin/main. NO SE HA EMPUJADO NADA.
-Si quieres publicar, revisa antes que no haya nada que no deba subir.
+EL REPOSITORIO ES PUBLICO: github.com/AldoZM/Notebook-Latex. Se verifico antes
+de empujar que el PDF del libro nunca entro al historial y que no hay archivos
+de mas de 1 MB. Tenlo presente al escribir: notas-plan.md lleva el analisis de
+precios y los costos por pagina.
 
 Recordatorio: sin firma de IA ni Co-Authored-By en los commits.
 
@@ -105,18 +107,17 @@ Detecta tambien TABLAS, por alineacion: cuando una fila tiene columnas,
 pdftotext la parte en varias `line` que comparten banda vertical, y el texto
 corrido siempre da una sola.
 
-EL TECHO DE ESTE METODO YA ESTA ESCRITO, en D50. Resumen: el frente B se
-sostiene sobre OCHO constantes ajustadas a mano sobre seis paginas de un solo
-libro, y esas ocho produjeron ocho fallos en la sesion en que se escribieron.
-Funciona para lo probado y se depura bien, pero:
+EL TECHO DE ESTE METODO ESTA ESCRITO EN D50 ... Y LA MEDICION YA LO TUMBO.
 
-    - cada libro nuevo pedira reajustarlas
-    - los fallos son silenciosos (el del margen borraba texto sin avisar)
-    - el codigo no se detecta nunca por esta via
+D50 dice que el frente B se sostiene sobre OCHO constantes ajustadas a mano
+sobre seis paginas de un solo libro, y que el movimiento correcto seria un
+modelo de maquetado sobre la IMAGEN de la pagina. Hasta ahi, correcto.
 
-    >> CUANDO APAREZCA EL NOVENO UMBRAL, ES SENAL DE CAMBIAR DE METODO,
-       NO DE AGREGARLO. El movimiento correcto es un modelo de maquetado
-       PREENTRENADO sobre la IMAGEN de la pagina, no sobre la capa de texto.
+Pero D50 daba como primera razon para NO cambiar todavia que "funciona para lo
+probado". Eso se midio despues y ES FALSO. Ver la seccion 2c.
+
+  >> FALTA ESCRIBIR D51, que revisa a D50 con esos numeros. Es lo primero
+     pendiente y lo unico de esta sesion que quedo sin anotar en el registro.
 
 LO QUE FALTA PARA EL LIBRO COMPLETO:
 
@@ -135,6 +136,59 @@ LO QUE FALTA PARA EL LIBRO COMPLETO:
 EL REGISTRO ES UNO SOLO para los dos frentes, con los del frente B marcados en
 el indice. Un hecho en dos documentos deja uno de los dos desactualizado sin
 forma de saber cual.
+
+
+-------------------------------------------------------------------------------
+  2c. LA MEDICION QUE TUMBA A D50, Y QUE FALTA ANOTAR
+-------------------------------------------------------------------------------
+
+Se instalo docling (IBM) en un entorno APARTE, en C:\Users\aldo-\.venvs\
+maquetado, y se corrio su modelo de maquetado sobre las mismas paginas. NO se
+toco el entorno del proyecto.
+
+LICENCIAS, verificadas con la disciplina de D33:
+
+    docling (codigo)         MIT
+    docling-models (pesos)   CDLA-Permissive-2.0 y Apache-2.0
+    DocLayNet (datos)        CDLA-Permissive-1.0, uso comercial permitido
+                             80,863 paginas de fuentes publicas
+
+    Terreno mucho mas limpio que el de manuscrito de R4, donde CROHME,
+    MathWriting, HME100K, IAM, RIMES e Imgur5K estaban TODOS cerrados.
+
+    CABO SUELTO: la ficha NO dice con que se entreno TableFormer, el modelo de
+    tablas. El de maquetado si. Cerrar eso antes de meterlo a un producto.
+
+RESULTADO EN LA PAGINA 84, donde la comparacion parecia pareja:
+
+    docling etiqueto como `code` el bloque "A: 13 27 35 40 49 55 59", que las
+    heuristicas NO pueden distinguir de un parrafo. La premisa de D50 se
+    confirma: la informacion SI esta en la imagen, la perdio el OCR.
+
+    Pero la tabla "Brute Force / Optimal / BCR" el modelo la llamo `code` y las
+    heuristicas la aciertan. Y los adornos "I" se le cuelan, y a las
+    heuristicas no. En una pagina era un INTERCAMBIO, no una mejora.
+
+RESULTADO EN 40-44, y aqui se acaba la discusion:
+
+                          heuristicas      docling
+    titulos de seccion          9             10
+    listas                      0             13     <- no existe el concepto
+    figuras                     0              3     <- salen como parrafos basura
+    tablas                      4              1
+    codigo                     no             si
+
+    LAS CUATRO TABLAS DE LAS HEURISTICAS SON FALSAS. Son las cajas de los
+    diagramas de flujo de las paginas 41 y 42, troceadas, con las flechas del
+    diagrama leidas por el OCR como '.__' y '__..'.
+
+    Y las tablas falsas y las figuras son EL MISMO FALLO: sin concepto de
+    figura, los diagramas caen en el detector de tablas, que ve cajas alineadas
+    y las toma por columnas.
+
+LA LECCION, que es la tercera vez que aparece en esta sesion: algo que se veia
+bien en UNA pagina se cayo con CINCO. Paso con la altura de linea, paso con el
+margen, y paso con el metodo entero. Medir sobre una muestra de uno no mide.
 
 
 -------------------------------------------------------------------------------
@@ -168,6 +222,10 @@ El .gitignore ya esta puesto: se versiona la verdad, no las imagenes.
 -------------------------------------------------------------------------------
   4. COMO SEGUIR, EN ORDEN
 -------------------------------------------------------------------------------
+
+  0. ESCRIBIR D51, que revisa a D50 con la medicion de la seccion 2c. Es lo
+     unico de la sesion pasada que quedo sin anotar, y la regla del proyecto
+     dice que D50 NO SE EDITA: entra una decision nueva que la revisa.
 
   1. DIBUJAR al menos las cuatro de C1 y fotografiarlas.
 
@@ -289,7 +347,8 @@ estan en el registro. La correspondencia esta anotada ahi.
       pregunta a codigo, y el mapa de que documento contesta que pregunta.
 
   README.md
-      Portada.
+      Portada. Actualizada el 2026-07-26: estado real, los tres comandos, y el
+      frente B con su techo.
 
   docs/superpowers/specs/2026-07-21-motor-conversion-latex-design.md
       QUE es el motor. 15 secciones.
