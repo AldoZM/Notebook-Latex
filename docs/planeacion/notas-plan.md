@@ -6,6 +6,19 @@ Este documento explica **por qué** el proyecto es como es. El **qué** está en
 Se escribe conforme se decide, para que una sesión de trabajo interrumpida no
 tenga que volver a recorrer lo ya recorrido.
 
+**Hay dos frentes y comparten este registro.** Comparten también toda la mitad
+de atrás del motor, del contrato hacia abajo; lo que cambia es la entrada:
+
+| | Frente | Entrada | Reconoce |
+|---|---|---|---|
+| **A** | Cuaderno manuscrito | foto de una hoja | trazos, y por eso necesita modelos |
+| **B** | Libro impreso | PDF con capa de texto | nada: el texto ya viene |
+
+Las decisiones sin marca son del frente A, que es el proyecto original. Las del
+frente B llevan la marca en el índice. **Un solo registro y no dos**, porque un
+hecho que vive en dos documentos deja uno de los dos desactualizado sin forma de
+saber cuál.
+
 - **Carpeta local:** `D:\Codigo Abierto\C-tex`
 - **Repositorio:** https://github.com/AldoZM/Notebook-Latex
 - **Inicio:** 2026-07-21
@@ -14,7 +27,9 @@ tenga que volver a recorrer lo ya recorrido.
   hueco que D37 había dejado abierto sobre la normalización. D41 dimensiona el
   corpus del nivel 1 y D42 acota D16 tras construir el generador del nivel −1.
   D43–D48 diseñan el extractor y registran lo que salió de medir su primera
-  caminata: error mediano del 0.35% sobre el nivel −1, con la leyenda fuera
+  caminata: error mediano del 0.35% sobre el nivel −1, con la leyenda fuera.
+  D49 y D50 abren el frente B, el del libro impreso, y dejan escrito dónde está
+  el techo del método geométrico
 
 ---
 
@@ -71,6 +86,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D47 | **El extractor no degrada: para, o entrega algo confiable** | excepción a D18 |
 | D48 | El material de prueba no lleva leyenda, y el criterio se mide entero | |
 | D49 | **Los bloques `codigo` y `tabla` van escapados, nunca en verbatim** | refuerza D31 |
+| D50 | El techo del método geométrico, y cuándo entra un modelo | frente B |
 
 ---
 
@@ -911,6 +927,78 @@ Comprobado compilando: un listado que contiene `\end{ctexcodigo}`,
 `\write18{echo tomado}` y `\input{/etc/passwd}` produce un PDF donde esas tres
 líneas **aparecen impresas como texto muerto**. El ataque se ve y no ejecuta
 nada.
+
+### D50 — El techo del método geométrico, y cuándo entra un modelo
+
+Sale de una pregunta directa: *¿seguro que esto no necesita aprendizaje
+automático?* La respuesta es distinta para cada frente, y por eso se escribe.
+
+#### El frente A no lo necesita, y es principio, no terquedad
+
+Extraer una curva de una gráfica es un problema clásico y resuelto —
+WebPlotDigitizer lleva una década haciéndolo sin un solo modelo. Los siete pasos
+tienen respuesta correcta conocida: Hough encuentra rectas, el centroide de una
+columna es una división. **No hay nada que aprender de datos porque no hay
+ambigüedad que resolver**, y el 0.35% del nivel −1 lo respalda.
+
+Donde sí hace falta —dígitos, ecuaciones, prosa— ya está planeado en D28 y D33.
+La fase 1 no tiene modelos porque D34 quitó lo único que los necesitaba.
+
+#### El frente B sí, y el método actual ya llegó a su techo
+
+**La evidencia, y es incómoda.** El frente B se sostiene sobre **ocho constantes
+ajustadas a mano** —`MARGEN`, `DESVIACION_TITULO`, `MAXIMO_DE_UN_TITULO`,
+`TOLERANCIA_MARGEN`, `SOLAPE_MINIMO`, `MINIMO_DE_FILAS`, `TOLERANCIA_ALINEACION`,
+`ANCHO_DE_ADORNO`— calibradas sobre **seis páginas de un solo libro**. En la
+sesión en que se escribieron produjeron **ocho fallos**:
+
+1. El encabezado corrido pegado al primer párrafo.
+2. La detección de títulos buscaba letra *más alta*; en este libro el título es
+   más **bajo** que el cuerpo.
+3. `MARGEN` en 8% se comía párrafos de una sola línea al principio de página.
+   Funcionaba de casualidad y lo cazó una prueba, no el ojo.
+4. Una fila de tabla que no se partió cortaba la tabla en dos.
+5. Detectar tablas antes de quitar encabezado y pie producía dos tablas falsas.
+6. La raya del margen que el OCR lee como `I` producía tablas fantasma.
+7. Y además secciones fantasma tituladas `I`.
+8. El margen medido sobre todo el libro perdía 8 de 9 títulos. **Procesar más
+   páginas empeoraba el resultado**, que es el síntoma más peligroso posible.
+
+**Corrección a lo que se dijo antes:** que el código no se puede detectar es
+cierto **desde la capa de texto**, no desde la imagen. El escaneo sí muestra que
+un bloque es monoespaciado; quien perdió esa información fue el OCR, no el
+papel. Un modelo de análisis de maquetado mira la **imagen de la página**, donde
+la distinción está intacta.
+
+Y "dado el escaneo de una página, marca qué región es título, párrafo, tabla,
+código o figura" es un problema supervisado estándar, con conjuntos públicos y
+pesos preentrenados. **Las ocho constantes son el método que ese enfoque
+reemplazó.**
+
+#### Qué se hace, y qué no
+
+**No se reescribe ahora.** Tres razones:
+
+1. Funciona para lo probado: ocho de nueve títulos reales, tablas correctas.
+2. **Se depura.** Los ocho fallos se pudieron nombrar, medir y corregir. Un
+   modelo que se equivoca no dice qué número mover.
+3. No hay datos etiquetados ni infraestructura, y meter un modelo antes de
+   responder I1a desordena las prioridades.
+
+**Pero el techo queda escrito**, que es el punto de esta decisión:
+
+- Cada libro nuevo pedirá reajustar las ocho. El arreglo del adorno `I` es
+  específico de *este* libro.
+- Los fallos son silenciosos: el del margen borraba texto sin avisar.
+- El código no se detecta nunca por esta vía, y es la mitad de CtCI.
+
+> **Cuando aparezca el noveno umbral, es señal de cambiar de método, no de
+> agregarlo.**
+
+**El movimiento correcto, cuando toque:** un modelo de maquetado
+**preentrenado**, aplicado a la imagen de la página. No entrenar nada — usar
+pesos que ya existen. Y con la misma disciplina de D33: revisar de qué está
+hecho cada conjunto de pesos, no solo qué etiqueta trae.
 
 ---
 

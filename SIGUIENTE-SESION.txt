@@ -101,21 +101,40 @@ suponer al reves:
     - El margen de lo corrido estaba en 8% y borraba texto. El encabezado esta
       al 2.9% y el cuerpo empieza al 6.5%. Ahora esta en 5%.
 
+Detecta tambien TABLAS, por alineacion: cuando una fila tiene columnas,
+pdftotext la parte en varias `line` que comparten banda vertical, y el texto
+corrido siempre da una sola.
+
+EL TECHO DE ESTE METODO YA ESTA ESCRITO, en D50. Resumen: el frente B se
+sostiene sobre OCHO constantes ajustadas a mano sobre seis paginas de un solo
+libro, y esas ocho produjeron ocho fallos en la sesion en que se escribieron.
+Funciona para lo probado y se depura bien, pero:
+
+    - cada libro nuevo pedira reajustarlas
+    - los fallos son silenciosos (el del margen borraba texto sin avisar)
+    - el codigo no se detecta nunca por esta via
+
+    >> CUANDO APAREZCA EL NOVENO UMBRAL, ES SENAL DE CAMBIAR DE METODO,
+       NO DE AGREGARLO. El movimiento correcto es un modelo de maquetado
+       PREENTRENADO sobre la IMAGEN de la pagina, no sobre la capa de texto.
+
 LO QUE FALTA PARA EL LIBRO COMPLETO:
 
-    1. BLOQUES DE CODIGO Y DE TABLA. Es la mayor parte de CtCI y el contrato
-       v1.0 no los tiene: solo titulo, parrafo, ecuacion y grafica. Esto TOCA
-       EL CONTRATO, o sea una v1.1, y necesita decision explicita.
-    2. Las figuras y diagramas de flujo. La pagina 42 es uno y sale como 44
+    1. DETECTAR el codigo. Los COMPOSITORES de `codigo` y `tabla` ya existen
+       (D49) y no costaron cambio de contrato: `tipo` es cadena libre. Lo que
+       falta es reconocer que un bloque ES codigo, y por la capa de texto no se
+       puede: este PDF es un escaneo con OCR y el monoespaciado mide igual que
+       el cuerpo. Necesita mirar la imagen (D50).
+    2. Las figuras y diagramas de flujo. La pagina 42 es uno y sale como muchos
        parrafos de una linea. O se saltan, o se recorta la imagen y se incrusta.
     3. Titulos corridos ("Enterprise Languages:"), que hoy quedan dentro del
        parrafo. En el original tambien son corridos, asi que puede estar bien.
     4. Artefactos del OCR original del PDF, como "flaunting.off". No son
        nuestros y no se arreglan desde aqui.
 
-NINGUNA DECISION DE ESTE FRENTE ESTA EN notas-plan.md todavia. Si el frente B
-sigue, conviene decidir si comparte registro con A o lleva el suyo: son
-productos distintos que comparten motor.
+EL REGISTRO ES UNO SOLO para los dos frentes, con los del frente B marcados en
+el indice. Un hecho en dos documentos deja uno de los dos desactualizado sin
+forma de saber cual.
 
 
 -------------------------------------------------------------------------------
