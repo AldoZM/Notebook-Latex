@@ -73,8 +73,9 @@ Prueban que el rastreo NO ESTA ROTO. No prueban que sirva.
   2b. EL FRENTE B: EL LIBRO IMPRESO
 -------------------------------------------------------------------------------
 
-Aldo pidio trabajar con Cracking the Coding Interview, que esta en la raiz del
-repositorio e ignorado por git. Objetivo declarado por el: sacarlo en limpio.
+Se probo con un PDF de libro tecnico que esta en la carpeta local, ignorado por
+git y sin entrar nunca al historial. Sirve de material de prueba porque es un
+caso real y dificil: texto corrido, listados de codigo, tablas y diagramas.
 
 EL HALLAZGO QUE CAMBIA EL PLAN: el PDF SI tiene capa de texto. No es solo
 imagenes. O sea que para el libro no hace falta reconocimiento de ninguna
