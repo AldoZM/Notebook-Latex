@@ -70,6 +70,7 @@ tenga que volver a recorrer lo ya recorrido.
 | D46 | La forma del documento que emite el extractor | deja una deuda |
 | D47 | **El extractor no degrada: para, o entrega algo confiable** | excepción a D18 |
 | D48 | El material de prueba no lleva leyenda, y el criterio se mide entero | |
+| D49 | **Los bloques `codigo` y `tabla` van escapados, nunca en verbatim** | refuerza D31 |
 
 ---
 
@@ -860,6 +861,56 @@ el principio.
 motor: sin ruido, sin papel, sin mano y sin cámara. Prueban que el rastreo no
 está roto, no que sirva. **Quien responde I1a son las 24 gráficas de D41
 dibujadas a mano**, y ese corpus todavía no existe.
+
+### D49 — Los bloques `codigo` y `tabla` van escapados, nunca en verbatim
+
+Entran dos tipos de bloque nuevos para el frente del libro impreso, que es
+mayormente listados de código y tablas de complejidad.
+
+**Y no cuestan un cambio de contrato.** El esquema define `tipo` como cadena
+libre y no como enumeración, y la regla 1 de la Sección 5 ya preveía este caso
+por su nombre: *"cuando se agreguen `tabla`, `ilustracion` y `firma`, la
+composición debe saltarse un bloque de tipo desconocido con una advertencia"*.
+Agregar tipos es compatible por diseño: los consumidores viejos los saltan y la
+versión se queda en 1.0. Solo se agregan compositores.
+
+**La decisión real es de seguridad, y va contra el instinto.** Un listado de
+código pide a gritos un `verbatim`, y `verbatim` es exactamente lo que no se
+puede usar:
+
+> Un entorno literal delimita su fin con una **cadena**. Un listado que
+> contenga `\end{verbatim}` se sale del entorno, y todo lo que siga se
+> interpreta como LaTeX.
+
+Eso sería **un segundo canal por donde entra un comando**, y D31 dice que el
+único es el campo `latex` de las ecuaciones. Un canal que además no tendría
+lista blanca, porque el código de un tercero es texto arbitrario por
+definición.
+
+**Los dos bloques pasan su contenido por `escapar`**, la frontera que ya existe
+y ya está probada. Escapado, el texto no puede formar un comando ni salirse de
+nada: la barra invertida se vuelve `\textbackslash{}` antes de que el motor la
+lea. Es reusar la compuerta en vez de abrir otra puerta al lado.
+
+El entorno `ctexcodigo` que envuelve el listado no es verbatim ni lo parece:
+recibe texto ya escapado y solo le pone tipografía de ancho fijo.
+
+**Dos detalles que salieron al construirlo:**
+
+- **La sangría se cuenta antes de escapar y se repone después**, con `~`. Antes,
+  porque después los espacios quedan mezclados con las secuencias de escape.
+  Después, porque `escapar` convierte cualquier `~` que viniera en el original,
+  así que el que se agregue aquí no puede confundirse con contenido.
+- **En una tabla el escapado importa más que en un párrafo.** `&` separa
+  columnas: una celda con un `&` sin escapar cambiaría la forma de la tabla y
+  el documento no compilaría. Y una fila con más o menos celdas que el
+  encabezado tampoco compila, así que se rellenan las cortas y se recortan las
+  largas — perder una celda es mejor que perder el documento (D18).
+
+Comprobado compilando: un listado que contiene `\end{ctexcodigo}`,
+`\write18{echo tomado}` y `\input{/etc/passwd}` produce un PDF donde esas tres
+líneas **aparecen impresas como texto muerto**. El ataque se ve y no ejecuta
+nada.
 
 ---
 

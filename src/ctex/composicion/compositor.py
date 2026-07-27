@@ -6,9 +6,11 @@ que no reconoce lo salta.
 """
 
 from ctex.composicion.bloques import (
+    componer_codigo,
     componer_ecuacion,
     componer_grafica,
     componer_parrafo,
+    componer_tabla,
     componer_titulo,
 )
 from ctex.composicion.plantilla import envolver
@@ -18,6 +20,8 @@ _COMPOSITORES = {
     "parrafo": componer_parrafo,
     "ecuacion": componer_ecuacion,
     "grafica": componer_grafica,
+    "codigo": componer_codigo,
+    "tabla": componer_tabla,
 }
 
 

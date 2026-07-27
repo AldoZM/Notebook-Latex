@@ -55,6 +55,68 @@ def _opciones_de_eje(eje: dict, nombre: str) -> list[str]:
     return opciones
 
 
+def componer_codigo(contenido: dict) -> str:
+    """Un listado de codigo, con cada linea escapada.
+
+    NO usa `verbatim` ni ningun entorno literal, a proposito. Un entorno
+    literal delimita su fin con una cadena —`\\end{verbatim}`—, asi que un
+    listado que la contenga se sale del entorno y lo que siga se interpreta
+    como LaTeX. Eso seria un segundo canal por donde entra un comando, y D31
+    dice que el unico es el campo `latex` de las ecuaciones.
+
+    Escapando cada linea con `escapar`, el texto no puede formar un comando ni
+    salirse de nada: la barra invertida se vuelve `\\textbackslash{}` antes de
+    que el motor la lea. Se reusa la frontera de seguridad que ya existe en vez
+    de abrir una nueva.
+    """
+    lineas = contenido.get("lineas", [])
+
+    compuestas = []
+    for linea in lineas:
+        # La sangria se cuenta ANTES de escapar, porque despues los espacios
+        # quedan mezclados con las secuencias de escape. Y se reintroduce con
+        # `~` DESPUES, porque escapar() convierte cualquier `~` que viniera en
+        # el texto original: el que se agregue aqui no puede confundirse con uno
+        # del contenido.
+        sangria = len(linea) - len(linea.lstrip(" "))
+        compuestas.append("~" * sangria + escapar(linea.strip(" ")))
+
+    cuerpo = " \\\\\n".join(compuestas)
+    return f"\\begin{{ctexcodigo}}\n{cuerpo}\n\\end{{ctexcodigo}}"
+
+
+def componer_tabla(contenido: dict) -> str:
+    """Una tabla, con cada celda escapada.
+
+    El escapado importa mas aqui que en un parrafo: `&` separa columnas y `\\\\`
+    separa filas, asi que una celda con un `&` sin escapar cambiaria la forma de
+    la tabla. `escapar` lo convierte en `\\&` y la celda se queda en su lugar.
+    """
+    encabezado = contenido.get("encabezado", [])
+    filas = contenido.get("filas", [])
+
+    columnas = len(encabezado) if encabezado else (len(filas[0]) if filas else 0)
+    if columnas == 0:
+        return degradar("tabla sin columnas")
+
+    def fila_a_latex(celdas: list) -> str:
+        # Las filas cortas se rellenan y las largas se recortan: una tabla con
+        # filas de distinto largo no compila, y degradar el documento entero por
+        # una celda de menos seria peor que perderla.
+        ajustadas = (list(celdas) + [""] * columnas)[:columnas]
+        return " & ".join(escapar(str(celda)) for celda in ajustadas) + " \\\\"
+
+    partes = [f"\\begin{{tabular}}{{{'l' * columnas}}}", "\\hline"]
+    if encabezado:
+        partes.append(fila_a_latex(encabezado))
+        partes.append("\\hline")
+    partes.extend(fila_a_latex(fila) for fila in filas)
+    partes.append("\\hline")
+    partes.append("\\end{tabular}")
+
+    return "\n".join(partes)
+
+
 def componer_grafica(contenido: dict) -> str:
     ejes = contenido["ejes"]
     opciones = _opciones_de_eje(ejes["x"], "x") + _opciones_de_eje(ejes["y"], "y")

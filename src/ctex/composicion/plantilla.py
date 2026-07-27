@@ -11,6 +11,14 @@ PREAMBULO = r"""\documentclass[11pt]{article}
 \pgfplotsset{compat=1.18}
 \usepackage{xcolor}
 
+% Entorno de los listados de codigo. No es verbatim ni lo parece: recibe texto
+% ya escapado por `escapar`, solo le pone tipografia de ancho fijo. Un verbatim
+% de verdad seria un segundo canal de inyeccion, porque su fin se delimita con
+% una cadena que el contenido puede contener.
+\newenvironment{ctexcodigo}
+  {\par\medskip\noindent\ttfamily\small\raggedright}
+  {\par\medskip}
+
 % Marca visible para los bloques degradados (D18).
 \newcommand{\ctexdegradado}[1]{%
   \par\noindent\fcolorbox{red}{red!5}{%
